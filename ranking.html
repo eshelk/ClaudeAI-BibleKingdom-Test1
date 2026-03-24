@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>랭킹 — 말씀나라</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sun: #FFD94A;
+    --sun-dark: #b8860b;
+    --grass: #4FCB7A;
+    --pixel-dark: #1a1a2e;
+    --pixel-purple: #3B2F6E;
+    --accent-orange: #FF7043;
+    --accent-pink: #FF5FA0;
+    --body-bg: #f7f6ff;
+    --section-alt: #f0eeff;
+    --card-bg: #ffffff;
+    --border: rgba(59,47,110,0.12);
+    --text-dark: #1a1a2e;
+    --text-muted: #5a5a8a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: var(--body-bg);
+    color: var(--text-dark);
+    overflow-x: hidden;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px clamp(20px, 4vw, 48px);
+    background: rgba(247,246,255,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-logo {
+    font-family: 'Press Start 2P', monospace;
+    font-size: clamp(10px, 1.6vw, 13px);
+    color: var(--pixel-purple);
+    letter-spacing: 1px;
+    text-decoration: none;
+  }
+  .nav-logo span { color: var(--accent-pink); }
+  .nav-links {
+    display: flex;
+    gap: clamp(16px, 2.5vw, 32px);
+    list-style: none;
+    align-items: center;
+  }
+  .nav-links a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 700;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--pixel-dark); }
+  .nav-links a.active {
+    color: var(--pixel-dark);
+    border-bottom: 2px solid var(--sun);
+    padding-bottom: 2px;
+  }
+  .nav-btn {
+    background: var(--sun);
+    color: var(--pixel-dark) !important;
+    padding: 8px 20px;
+    font-weight: 900 !important;
+    box-shadow: 3px 3px 0 var(--sun-dark);
+    transition: transform 0.1s, box-shadow 0.1s;
+  }
+  .nav-btn:hover {
+    transform: translate(-1px,-1px);
+    box-shadow: 4px 4px 0 var(--sun-dark) !important;
+  }
+
+  /* ── PAGE HEADER ── */
+  .page-header {
+    margin-top: 64px;
+    padding: 48px clamp(20px,5vw,80px) 0;
+    background: linear-gradient(135deg, #f0eeff 0%, #f7f6ff 100%);
+    border-bottom: 3px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+  .page-header::before {
+    content: '🏆';
+    position: absolute;
+    right: 6%; top: 50%;
+    transform: translateY(-50%);
+    font-size: clamp(80px,12vw,140px);
+    opacity: 0.10;
+    pointer-events: none;
+  }
+  .header-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .header-eyebrow {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 9px;
+    color: var(--accent-pink);
+    letter-spacing: 3px;
+    display: block;
+    margin-bottom: 10px;
+  }
+  .header-title {
+    font-size: clamp(28px,5vw,52px);
+    font-weight: 900;
+    color: var(--pixel-dark);
+    line-height: 1.1;
+    margin-bottom: 10px;
+  }
+  .header-title .hl { color: var(--sun); -webkit-text-stroke: 1px var(--sun-dark); }
+  .header-desc {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-bottom: 32px;
+    line-height: 1.7;
+  }
+
+  /* ── TOP 3 PODIUM ── */
+  .podium-wrap {
+    padding: 48px clamp(20px,5vw,80px) 0;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .podium-eyebrow {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 9px;
+    color: var(--pixel-purple);
+    letter-spacing: 3px;
+    margin-bottom: 32px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .podium-eyebrow::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  .podium {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 16px;
+    margin-bottom: 48px;
+  }
+  .podium-item {
+    text-align: center;
+    flex: 1;
+    max-width: 200px;
+    animation: pop-in 0.5s ease backwards;
+  }
+  .podium-item:nth-child(1) { animation-delay: 0.1s; }
+  .podium-item:nth-child(2) { animation-delay: 0s; }
+  .podium-item:nth-child(3) { animation-delay: 0.2s; }
+  @keyframes pop-in {
+    from { opacity:0; transform: translateY(20px); }
+    to   { opacity:1; transform: translateY(0); }
+  }
+
+  .podium-avatar {
+    width: 64px; height: 64px;
+    margin: 0 auto 10px;
+    border-radius: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px;
+    border: 3px solid var(--p-color);
+    background: #fff;
+    position: relative;
+    box-shadow: 4px 4px 0 var(--p-color);
+  }
+  .podium-crown {
+    position: absolute;
+    top: -22px; left: 50%;
+    transform: translateX(-50%);
+    font-size: 20px;
+  }
+  .podium-nick {
+    font-weight: 900;
+    font-size: 14px;
+    color: var(--pixel-dark);
+    margin-bottom: 4px;
+  }
+  .podium-talent {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    color: var(--p-color);
+    margin-bottom: 12px;
+    display: block;
+  }
+  .podium-badge {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 8px;
+    padding: 3px 10px;
+    color: #fff;
+    background: var(--p-color);
+    display: inline-block;
+    box-shadow: 2px 2px 0 rgba(0,0,0,0.15);
+    margin-bottom: 12px;
+  }
+  .podium-block {
+    background: var(--p-color);
+    height: var(--p-height);
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.15;
+  }
+  /* 1위 */
+  .podium-item.rank1 { --p-color: #FFD94A; --p-height: 90px; order: 2; }
+  /* 2위 */
+  .podium-item.rank2 { --p-color: #b0b8d0; --p-height: 64px; order: 1; }
+  /* 3위 */
+  .podium-item.rank3 { --p-color: #FF7043; --p-height: 44px; order: 3; }
+
+  /* ── FILTER / TAB BAR ── */
+  .filter-bar {
+    background: #fff;
+    border-top: 1px solid var(--border);
+    border-bottom: 2px solid var(--border);
+    position: sticky;
+    top: 64px;
+    z-index: 50;
+  }
+  .filter-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 clamp(20px,5vw,80px);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .filter-tabs { display: flex; }
+  .f-tab {
+    padding: 14px 22px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    color: var(--text-muted);
+    border-bottom: 3px solid transparent;
+    border-top: none; border-left: none; border-right: none;
+    background: none;
+    transition: color 0.2s, border-color 0.2s;
+    white-space: nowrap;
+  }
+  .f-tab.active {
+    color: var(--pixel-dark);
+    border-bottom-color: var(--sun);
+    font-weight: 900;
+  }
+  .filter-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+  }
+  .filter-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+  }
+  .period-btn {
+    padding: 6px 14px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    background: #fff;
+    transition: all 0.2s;
+  }
+  .period-btn.active {
+    background: var(--pixel-purple);
+    color: #fff;
+    border-color: var(--pixel-purple);
+  }
+
+  /* ── MAIN LAYOUT ── */
+  .main-wrap {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 40px clamp(20px,5vw,80px);
+    display: grid;
+    grid-template-columns: 1fr 260px;
+    gap: 32px;
+    align-items: start;
+  }
+  @media (max-width: 768px) {
+    .main-wrap { grid-template-columns: 1fr; }
+  }
+
+  /* ── RANKING TABLE ── */
+  .ranking-wrap {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    box-shadow: 0 4px 20px rgba(59,47,110,0.06);
+    overflow: hidden;
+  }
+
+  /* 패널 */
+  .rank-panel { display: none; }
+  .rank-panel.active { display: block; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  thead tr {
+    background: #f0eeff;
+    border-bottom: 2px solid var(--border);
+  }
+  thead th {
+    padding: 13px 16px;
+    text-align: left;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  tbody tr {
+    border-bottom: 1px solid rgba(59,47,110,0.06);
+    transition: background 0.15s;
+    animation: row-in 0.3s ease backwards;
+  }
+  @keyframes row-in {
+    from { opacity:0; transform: translateX(-8px); }
+    to   { opacity:1; transform: translateX(0); }
+  }
+  tbody tr:nth-child(1) { animation-delay: 0.05s; }
+  tbody tr:nth-child(2) { animation-delay: 0.10s; }
+  tbody tr:nth-child(3) { animation-delay: 0.15s; }
+  tbody tr:nth-child(n+4) { animation-delay: 0.20s; }
+  tbody tr:hover { background: #f7f6ff; }
+  tbody tr.me-row {
+    background: rgba(255,209,74,0.10);
+    border-top: 2px dashed rgba(255,209,74,0.4);
+  }
+  tbody td {
+    padding: 15px 16px;
+    white-space: nowrap;
+  }
+
+  /* 순위 */
+  .rank-num {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 11px;
+    width: 48px;
+    text-align: center;
+    color: var(--text-muted);
+  }
+  .rank-medal { font-size: 20px; }
+
+  /* 아이디 */
+  .id-cell { font-size: 11px; color: var(--text-muted); }
+
+  /* 닉네임 */
+  .nick-wrap { display: flex; align-items: center; gap: 8px; }
+  .nick { font-weight: 900; color: var(--pixel-dark); }
+  .me-tag {
+    display: inline-block;
+    background: var(--accent-pink);
+    color: #fff;
+    font-size: 8px;
+    font-weight: 700;
+    padding: 2px 7px;
+    vertical-align: middle;
+    font-family: 'Press Start 2P', monospace;
+  }
+
+  /* 달란트 */
+  .talent-num {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 11px;
+    color: var(--pixel-purple);
+    font-weight: 900;
+  }
+  .talent-num.top { color: var(--sun); -webkit-text-stroke: 0.5px var(--sun-dark); }
+
+  /* 레벨 뱃지 */
+  .level-badge {
+    display: inline-block;
+    font-size: 8px;
+    font-weight: 900;
+    padding: 4px 10px;
+    font-family: 'Press Start 2P', monospace;
+  }
+  .lv5 { background: #FFD700; color: #1a1a2e; }
+  .lv4 { background: #C0A0FF; color: #1a1a2e; }
+  .lv3 { background: #4FCB7A; color: #1a1a2e; }
+  .lv2 { background: #6EC6F5; color: #1a1a2e; }
+  .lv1 { background: #e0e0e0; color: #1a1a2e; }
+
+  /* 날짜 */
+  .date-cell { color: var(--text-muted); font-size: 11px; }
+
+  /* 변동 */
+  .change-up   { color: var(--grass); font-weight: 900; font-size: 11px; }
+  .change-down { color: var(--accent-pink); font-weight: 900; font-size: 11px; }
+  .change-same { color: var(--text-muted); font-size: 11px; }
+
+  /* 구분선 나의 순위 */
+  .divider-row td {
+    padding: 6px 16px;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 8px;
+    color: rgba(255,180,0,0.5);
+    letter-spacing: 2px;
+    background: rgba(255,209,74,0.05);
+  }
+
+  /* 페이지네이션 */
+  .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    padding: 20px;
+    border-top: 1px solid var(--border);
+  }
+  .page-btn {
+    width: 32px; height: 32px;
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid var(--border);
+    background: #fff;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-muted);
+    transition: all 0.15s;
+  }
+  .page-btn.active {
+    background: var(--pixel-purple);
+    color: #fff;
+    border-color: var(--pixel-purple);
+    font-family: 'Press Start 2P', monospace;
+    font-size: 9px;
+  }
+  .page-btn:hover:not(.active) {
+    background: #f0eeff;
+    color: var(--pixel-dark);
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar { display: flex; flex-direction: column; gap: 20px; }
+  .side-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(59,47,110,0.05);
+  }
+  .side-title {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 9px;
+    color: var(--pixel-purple);
+    letter-spacing: 2px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .side-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* 내 현황 카드 */
+  .my-rank-card {
+    background: linear-gradient(135deg, #f0eeff, #f7f6ff);
+    border: 2px solid var(--pixel-purple);
+    padding: 20px;
+    box-shadow: 4px 4px 0 rgba(59,47,110,0.12);
+  }
+  .my-rank-top {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+  .my-avatar {
+    width: 48px; height: 48px;
+    background: linear-gradient(135deg, var(--accent-pink), var(--sun));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+  .my-nick { font-weight: 900; font-size: 14px; color: var(--pixel-dark); }
+  .my-level { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
+  .my-rank-num {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 28px;
+    color: var(--pixel-purple);
+    text-align: center;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .my-rank-label {
+    font-size: 10px;
+    color: var(--text-muted);
+    text-align: center;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin-bottom: 14px;
+  }
+  .my-prog-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: var(--text-muted);
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .my-prog-bar {
+    height: 8px;
+    background: rgba(59,47,110,0.08);
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+  .my-prog-fill {
+    height: 100%;
+    width: 53%;
+    background: linear-gradient(90deg, var(--accent-pink), var(--sun));
+    animation: prog-in 1s ease forwards;
+  }
+  @keyframes prog-in {
+    from { width: 0; }
+    to { width: 53%; }
+  }
+
+  /* 이번 주 TOP 활동 */
+  .activity-list { display: flex; flex-direction: column; gap: 10px; }
+  .activity-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px dashed var(--border);
+  }
+  .activity-row:last-child { border-bottom: none; padding-bottom: 0; }
+  .activity-rank {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 8px;
+    width: 20px;
+    color: var(--text-muted);
+    flex-shrink: 0;
+    text-align: center;
+  }
+  .activity-name { flex: 1; font-weight: 700; color: var(--pixel-dark); }
+  .activity-score {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 8px;
+    color: var(--grass);
+  }
+
+  /* 달란트 TOP 게임 */
+  .game-stat-list { display: flex; flex-direction: column; gap: 10px; }
+  .game-stat-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+  }
+  .game-stat-emoji { font-size: 20px; flex-shrink: 0; }
+  .game-stat-info { flex: 1; }
+  .game-stat-name { font-weight: 700; color: var(--pixel-dark); font-size: 12px; margin-bottom: 4px; }
+  .game-stat-bar-wrap { height: 5px; background: #f0eeff; }
+  .game-stat-bar { height: 100%; background: var(--stat-color); }
+  .game-stat-count { font-size: 10px; color: var(--text-muted); font-weight: 700; }
+
+  @media (max-width: 600px) {
+    .nav-links li:not(:last-child) { display: none; }
+    .filter-tabs { overflow-x: auto; }
+    .podium { gap: 8px; }
+    table { font-size: 11px; }
+    .id-cell { display: none; }
+    .change-up, .change-down, .change-same { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+  <a href="sunday-school-landing.html" class="nav-logo">말씀<span>나라</span></a>
+  <ul class="nav-links">
+    <li><a href="game-center.html">🎮 게임센터</a></li>
+    <li><a href="#" class="active">🏆 랭킹</a></li>
+    <li><a href="#">🧑‍🎤 내 아바타</a></li>
+    <li><a href="#" class="nav-btn">달란트 💰 320</a></li>
+  </ul>
+</nav>
+
+<!-- ── PAGE HEADER ── -->
+<div class="page-header">
+  <div class="header-inner">
+    <span class="header-eyebrow">✦ RANKING</span>
+    <h1 class="header-title">명예의 <span class="hl">전당</span></h1>
+    <p class="header-desc">실시간 랭킹 차트. 나의 순위는 항상 하단에 고정되어 있어요.</p>
+  </div>
+</div>
+
+<!-- ── TOP 3 PODIUM ── -->
+<div class="podium-wrap">
+  <div class="podium-eyebrow">✦ THIS WEEK TOP 3</div>
+  <div class="podium">
+
+    <!-- 2위 -->
+    <div class="podium-item rank2">
+      <div class="podium-avatar">🧒</div>
+      <div class="podium-nick">하나빛</div>
+      <span class="podium-talent">980</span>
+      <div class="podium-badge">Lv.4 열매</div>
+      <div class="podium-block"></div>
+    </div>
+
+    <!-- 1위 -->
+    <div class="podium-item rank1">
+      <div class="podium-avatar">
+        <div class="podium-crown">👑</div>
+        🧑
+      </div>
+      <div class="podium-nick">말씀왕</div>
+      <span class="podium-talent">1,240</span>
+      <div class="podium-badge">Lv.5 빛의용사</div>
+      <div class="podium-block"></div>
+    </div>
+
+    <!-- 3위 -->
+    <div class="podium-item rank3">
+      <div class="podium-avatar">👧</div>
+      <div class="podium-nick">성경왕</div>
+      <span class="podium-talent">870</span>
+      <div class="podium-badge">Lv.4 열매</div>
+      <div class="podium-block"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── FILTER BAR ── -->
+<div class="filter-bar">
+  <div class="filter-inner">
+    <div class="filter-tabs">
+      <button class="f-tab active" data-panel="all">🌍 전체</button>
+      <button class="f-tab" data-panel="kindergarten">🐣 유치부</button>
+      <button class="f-tab" data-panel="elementary">⭐ 초등부</button>
+      <button class="f-tab" data-panel="youth">🔥 중고등부</button>
+    </div>
+    <div class="filter-right">
+      <span class="filter-label">기간</span>
+      <button class="period-btn active">이번 주</button>
+      <button class="period-btn">이번 달</button>
+      <button class="period-btn">전체</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MAIN ── -->
+<div class="main-wrap">
+
+  <!-- 랭킹 테이블 -->
+  <div class="ranking-wrap">
+
+    <!-- 전체 랭킹 -->
+    <div class="rank-panel active" id="panel-all">
+      <table>
+        <thead>
+          <tr>
+            <th>순위</th>
+            <th>아이디</th>
+            <th>닉네임</th>
+            <th>누적 달란트</th>
+            <th>레벨</th>
+            <th>최근 적립일</th>
+            <th>변동</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="rank-num"><span class="rank-medal">🥇</span></td>
+            <td class="id-cell">word_king</td>
+            <td><div class="nick-wrap"><span class="nick">말씀왕</span></div></td>
+            <td><span class="talent-num top">1,240</span></td>
+            <td><span class="level-badge lv5">Lv.5</span></td>
+            <td class="date-cell">03.24</td>
+            <td class="change-same">—</td>
+          </tr>
+          <tr>
+            <td class="rank-num"><span class="rank-medal">🥈</span></td>
+            <td class="id-cell">hana_light</td>
+            <td><div class="nick-wrap"><span class="nick">하나빛</span></div></td>
+            <td><span class="talent-num">980</span></td>
+            <td><span class="level-badge lv4">Lv.4</span></td>
+            <td class="date-cell">03.23</td>
+            <td class="change-up">▲2</td>
+          </tr>
+          <tr>
+            <td class="rank-num"><span class="rank-medal">🥉</span></td>
+            <td class="id-cell">bible_star</td>
+            <td><div class="nick-wrap"><span class="nick">성경왕</span></div></td>
+            <td><span class="talent-num">870</span></td>
+            <td><span class="level-badge lv4">Lv.4</span></td>
+            <td class="date-cell">03.22</td>
+            <td class="change-down">▼1</td>
+          </tr>
+          <tr>
+            <td class="rank-num" style="color:var(--text-muted);">4</td>
+            <td class="id-cell">faith_j</td>
+            <td><div class="nick-wrap"><span class="nick">믿음이</span></div></td>
+            <td><span class="talent-num">750</span></td>
+            <td><span class="level-badge lv3">Lv.3</span></td>
+            <td class="date-cell">03.21</td>
+            <td class="change-up">▲1</td>
+          </tr>
+          <tr>
+            <td class="rank-num" style="color:var(--text-muted);">5</td>
+            <td class="id-cell">grace99</td>
+            <td><div class="nick-wrap"><span class="nick">은혜로</span></div></td>
+            <td><span class="talent-num">610</span></td>
+            <td><span class="level-badge lv3">Lv.3</span></td>
+            <td class="date-cell">03.20</td>
+            <td class="change-same">—</td>
+          </tr>
+          <tr>
+            <td class="rank-num" style="color:var(--text-muted);">6</td>
+            <td class="id-cell">joyful_k</td>
+            <td><div class="nick-wrap"><span class="nick">기쁨이</span></div></td>
+            <td><span class="talent-num">560</span></td>
+            <td><span class="level-badge lv3">Lv.3</span></td>
+            <td class="date-cell">03.20</td>
+            <td class="change-down">▼2</td>
+          </tr>
+          <tr>
+            <td class="rank-num" style="color:var(--text-muted);">7</td>
+            <td class="id-cell">light77</td>
+            <td><div class="nick-wrap"><span class="nick">빛나리</span></div></td>
+            <td><span class="talent-num">490</span></td>
+            <td><span class="level-badge lv3">Lv.3</span></td>
+            <td class="date-cell">03.19</td>
+            <td class="change-up">▲3</td>
+          </tr>
+          <tr>
+            <td class="rank-num" style="color:var(--text-muted);">8</td>
+            <td class="id-cell">hope_s</td>
+            <td><div class="nick-wrap"><span class="nick">소망이</span></div></td>
+            <td><span class="talent-num">440</span></td>
+            <td><span class="level-badge lv3">Lv.3</span></td>
+            <td class="date-cell">03.19</td>
+            <td class="change-same">—</td>
+          </tr>
+          <tr>
+            <td class="rank-num" style="color:var(--text-muted);">9</td>
+            <td class="id-cell">peace_m</td>
+            <td><div class="nick-wrap"><span class="nick">평화</span></div></td>
+            <td><span class="talent-num">390</span></td>
+            <td><span class="level-badge lv2">Lv.2</span></td>
+            <td class="date-cell">03.18</td>
+            <td class="change-down">▼1</td>
+          </tr>
+          <tr>
+            <td class="rank-num" style="color:var(--text-muted);">10</td>
+            <td class="id-cell">amen_j</td>
+            <td><div class="nick-wrap"><span class="nick">아멘</span></div></td>
+            <td><span class="talent-num">350</span></td>
+            <td><span class="level-badge lv2">Lv.2</span></td>
+            <td class="date-cell">03.18</td>
+            <td class="change-up">▲1</td>
+          </tr>
+
+          <!-- 구분선 -->
+          <tr class="divider-row">
+            <td colspan="7">─── 나의 순위 ───</td>
+          </tr>
+
+          <!-- 내 순위 고정 -->
+          <tr class="me-row">
+            <td class="rank-num" style="color:var(--pixel-purple); font-family:'Press Start 2P',monospace; font-size:11px;">17</td>
+            <td class="id-cell">my_id</td>
+            <td>
+              <div class="nick-wrap">
+                <span class="nick">내닉네임</span>
+                <span class="me-tag">ME</span>
+              </div>
+            </td>
+            <td><span class="talent-num">320</span></td>
+            <td><span class="level-badge lv3">Lv.3</span></td>
+            <td class="date-cell">03.24</td>
+            <td class="change-up">▲2</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="pagination">
+        <button class="page-btn active">1</button>
+        <button class="page-btn">2</button>
+        <button class="page-btn">3</button>
+        <button class="page-btn">›</button>
+      </div>
+    </div>
+
+    <!-- 유치부 랭킹 -->
+    <div class="rank-panel" id="panel-kindergarten">
+      <table>
+        <thead>
+          <tr>
+            <th>순위</th>
+            <th>아이디</th>
+            <th>닉네임</th>
+            <th>누적 달란트</th>
+            <th>레벨</th>
+            <th>최근 적립일</th>
+            <th>변동</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="rank-num"><span class="rank-medal">🥇</span></td>
+            <td class="id-cell">bunny01</td>
+            <td><div class="nick-wrap"><span class="nick">토끼별</span></div></td>
+            <td><span class="talent-num top">410</span></td>
+            <td><span class="level-badge lv3">Lv.3</span></td>
+            <td class="date-cell">03.24</td>
+            <td class="change-same">—</td>
+          </tr>
+          <tr>
+            <td class="rank-num"><span class="rank-medal">🥈</span></td>
+            <td class="id-cell">star_a</td>
+            <td><div class="nick-wrap"><span class="nick">별이</span></div></td>
+            <td><span class="talent-num">320</span></td>
+            <td><span class="level-badge lv3">Lv.3</span></td>
+            <td class="date-cell">03.23</td>
+            <td class="change-up">▲1</td>
+          </tr>
+          <tr>
+            <td class="rank-num"><span class="rank-medal">🥉</span></td>
+            <td class="id-cell">rainbow7</td>
+            <td><div class="nick-wrap"><span class="nick">무지개</span></div></td>
+            <td><span class="talent-num">280</span></td>
+            <td><span class="level-badge lv2">Lv.2</span></td>
+            <td class="date-cell">03.22</td>
+            <td class="change-down">▼1</td>
+          </tr>
+          <tr class="divider-row">
+            <td colspan="7">─── 나의 순위 ───</td>
+          </tr>
+          <tr class="me-row">
+            <td class="rank-num" style="color:var(--pixel-purple); font-family:'Press Start 2P',monospace; font-size:11px;">5</td>
+            <td class="id-cell">my_id</td>
+            <td><div class="nick-wrap"><span class="nick">내닉네임</span><span class="me-tag">ME</span></div></td>
+            <td><span class="talent-num">210</span></td>
+            <td><span class="level-badge lv2">Lv.2</span></td>
+            <td class="date-cell">03.24</td>
+            <td class="change-up">▲1</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 초등부 랭킹 -->
+    <div class="rank-panel" id="panel-elementary">
+      <table>
+        <thead>
+          <tr>
+            <th>순위</th>
+            <th>아이디</th>
+            <th>닉네임</th>
+            <th>누적 달란트</th>
+            <th>레벨</th>
+            <th>최근 적립일</th>
+            <th>변동</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="rank-num"><span class="rank-medal">🥇</span></td>
+            <td class="id-cell">word_king</td>
+            <td><div class="nick-wrap"><span class="nick">말씀왕</span></div></td>
+            <td><span class="talent-num top">1,240</span></td>
+            <td><span class="level-badge lv5">Lv.5</span></td>
+            <td class="date-cell">03.24</td>
+            <td class="change-same">—</td>
+          </tr>
+          <tr>
+            <td class="rank-num"><span class="rank-medal">🥈</span></td>
+            <td class="id-cell">faith_j</td>
+            <td><div class="nick-wrap"><span class="nick">믿음이</span></div></td>
+            <td><span class="talent-num">750</span></td>
+            <td><span class="level-badge lv3">Lv.3</span></td>
+            <td class="date-cell">03.21</td>
+            <td class="change-up">▲1</td>
+          </tr>
+          <tr>
+            <td class="rank-num"><span class="rank-medal">🥉</span></td>
+            <td class="id-cell">light77</td>
+            <td><div class="nick-wrap"><span class="nick">빛나리</span></div></td>
+            <td><span class="talent-num">490</span></td>
+            <td><span class="level-badge lv3">Lv.3</span></td>
+            <td class="date-cell">03.19</td>
+            <td class="change-up">▲3</td>
+          </tr>
+          <tr class="divider-row">
+            <td colspan="7">─── 나의 순위 ───</td>
+          </tr>
+          <tr class="me-row">
+            <td class="rank-num" style="color:var(--pixel-purple); font-family:'Press Start 2P',monospace; font-size:11px;">17</td>
+            <td class="id-cell">my_id</td>
+            <td><div class="nick-wrap"><span class="nick">내닉네임</span><span class="me-tag">ME</span></div></td>
+            <td><span class="talent-num">320</span></td>
+            <td><span class="level-badge lv3">Lv.3</span></td>
+            <td class="date-cell">03.24</td>
+            <td class="change-up">▲2</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 중고등부 랭킹 -->
+    <div class="rank-panel" id="panel-youth">
+      <table>
+        <thead>
+          <tr>
+            <th>순위</th>
+            <th>아이디</th>
+            <th>닉네임</th>
+            <th>누적 달란트</th>
+            <th>레벨</th>
+            <th>최근 적립일</th>
+            <th>변동</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="rank-num"><span class="rank-medal">🥇</span></td>
+            <td class="id-cell">hana_light</td>
+            <td><div class="nick-wrap"><span class="nick">하나빛</span></div></td>
+            <td><span class="talent-num top">980</span></td>
+            <td><span class="level-badge lv4">Lv.4</span></td>
+            <td class="date-cell">03.23</td>
+            <td class="change-up">▲2</td>
+          </tr>
+          <tr>
+            <td class="rank-num"><span class="rank-medal">🥈</span></td>
+            <td class="id-cell">bible_star</td>
+            <td><div class="nick-wrap"><span class="nick">성경왕</span></div></td>
+            <td><span class="talent-num">870</span></td>
+            <td><span class="level-badge lv4">Lv.4</span></td>
+            <td class="date-cell">03.22</td>
+            <td class="change-down">▼1</td>
+          </tr>
+          <tr>
+            <td class="rank-num"><span class="rank-medal">🥉</span></td>
+            <td class="id-cell">grace99</td>
+            <td><div class="nick-wrap"><span class="nick">은혜로</span></div></td>
+            <td><span class="talent-num">610</span></td>
+            <td><span class="level-badge lv3">Lv.3</span></td>
+            <td class="date-cell">03.20</td>
+            <td class="change-same">—</td>
+          </tr>
+          <tr class="divider-row">
+            <td colspan="7">─── 나의 순위 ───</td>
+          </tr>
+          <tr class="me-row">
+            <td class="rank-num" style="color:var(--pixel-purple); font-family:'Press Start 2P',monospace; font-size:11px;">8</td>
+            <td class="id-cell">my_id</td>
+            <td><div class="nick-wrap"><span class="nick">내닉네임</span><span class="me-tag">ME</span></div></td>
+            <td><span class="talent-num">320</span></td>
+            <td><span class="level-badge lv3">Lv.3</span></td>
+            <td class="date-cell">03.24</td>
+            <td class="change-up">▲2</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── SIDEBAR ── -->
+  <aside class="sidebar">
+
+    <!-- 내 현황 -->
+    <div class="my-rank-card">
+      <div class="side-title">MY STATUS</div>
+      <div class="my-rank-top">
+        <div class="my-avatar">🧒</div>
+        <div>
+          <div class="my-nick">내닉네임</div>
+          <div class="my-level">🌳 Lv.3 나무 · 초등부</div>
+        </div>
+      </div>
+      <div class="my-rank-num">#17</div>
+      <div class="my-rank-label">전체 랭킹</div>
+      <div class="my-prog-label">
+        <span>💰 320 달란트</span>
+        <span>다음 레벨 600</span>
+      </div>
+      <div class="my-prog-bar">
+        <div class="my-prog-fill"></div>
+      </div>
+    </div>
+
+    <!-- 이번 주 활동왕 -->
+    <div class="side-card">
+      <div class="side-title">THIS WEEK 🔥</div>
+      <div class="activity-list">
+        <div class="activity-row">
+          <span class="activity-rank">1</span>
+          <span class="activity-name">말씀왕</span>
+          <span class="activity-score">+180</span>
+        </div>
+        <div class="activity-row">
+          <span class="activity-rank">2</span>
+          <span class="activity-name">하나빛</span>
+          <span class="activity-score">+140</span>
+        </div>
+        <div class="activity-row">
+          <span class="activity-rank">3</span>
+          <span class="activity-name">빛나리</span>
+          <span class="activity-score">+120</span>
+        </div>
+        <div class="activity-row" style="border-top:1px dashed var(--border); padding-top:10px; margin-top:2px;">
+          <span class="activity-rank" style="color:var(--accent-pink);">ME</span>
+          <span class="activity-name" style="color:var(--pixel-purple);">내닉네임</span>
+          <span class="activity-score">+38</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 인기 게임 -->
+    <div class="side-card">
+      <div class="side-title">HOT GAME 🎮</div>
+      <div class="game-stat-list">
+        <div class="game-stat-row">
+          <span class="game-stat-emoji">📖</span>
+          <div class="game-stat-info">
+            <div class="game-stat-name">말씀 빈칸</div>
+            <div class="game-stat-bar-wrap">
+              <div class="game-stat-bar" style="width:88%; --stat-color:var(--grass);"></div>
+            </div>
+          </div>
+          <span class="game-stat-count">1,284회</span>
+        </div>
+        <div class="game-stat-row">
+          <span class="game-stat-emoji">⚡</span>
+          <div class="game-stat-info">
+            <div class="game-stat-name">스피드 배틀</div>
+            <div class="game-stat-bar-wrap">
+              <div class="game-stat-bar" style="width:72%; --stat-color:var(--accent-pink);"></div>
+            </div>
+          </div>
+          <span class="game-stat-count">1,048회</span>
+        </div>
+        <div class="game-stat-row">
+          <span class="game-stat-emoji">🏆</span>
+          <div class="game-stat-info">
+            <div class="game-stat-name">암송 챌린지</div>
+            <div class="game-stat-bar-wrap">
+              <div class="game-stat-bar" style="width:55%; --stat-color:var(--sun);"></div>
+            </div>
+          </div>
+          <span class="game-stat-count">800회</span>
+        </div>
+      </div>
+    </div>
+
+  </aside>
+</div>
+
+<script>
+  // ── 탭 전환 ──
+  document.querySelectorAll('.f-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.f-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.rank-panel').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById('panel-' + tab.dataset.panel).classList.add('active');
+    });
+  });
+
+  // ── 기간 버튼 ──
+  document.querySelectorAll('.period-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+
+  // ── 페이지네이션 ──
+  document.querySelectorAll('.page-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.page-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>

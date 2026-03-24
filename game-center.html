@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>게임 센터 — 말씀나라</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sun:#FFD94A; --sun-dark:#b8860b;
+    --grass:#4FCB7A; --grass-dark:#2a9a50;
+    --pixel-dark:#1a1a2e; --pixel-purple:#3B2F6E;
+    --orange:#FF7043; --pink:#FF5FA0;
+    --bg:#f7f6ff; --white:#fff;
+    --border:rgba(59,47,110,0.12);
+    --text:#1a1a2e; --muted:#5a5a8a;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;}
+
+  /* NAV */
+  nav{
+    position:fixed;top:0;left:0;right:0;z-index:200;
+    display:flex;justify-content:space-between;align-items:center;
+    padding:0 clamp(20px,4vw,48px);height:60px;
+    background:rgba(247,246,255,0.95);backdrop-filter:blur(16px);
+    border-bottom:2px solid var(--pixel-dark);
+    box-shadow:0 4px 0 rgba(59,47,110,0.07);
+  }
+  .nav-logo{font-family:'Press Start 2P',monospace;font-size:clamp(9px,1.4vw,12px);color:var(--pixel-purple);text-decoration:none;}
+  .nav-logo span{color:var(--pink);}
+  .nav-pills{display:flex;gap:4px;background:var(--pixel-dark);padding:4px;}
+  .npill{padding:6px 16px;font-size:11px;font-weight:700;color:rgba(255,255,255,0.5);cursor:pointer;background:none;border:none;letter-spacing:0.5px;transition:background 0.15s,color 0.15s;white-space:nowrap;}
+  .npill.active,.npill:hover{background:var(--sun);color:var(--pixel-dark);}
+  .talent-chip{background:var(--sun);color:var(--pixel-dark);font-family:'Press Start 2P',monospace;font-size:9px;padding:8px 14px;border:none;cursor:pointer;box-shadow:3px 3px 0 var(--sun-dark);transition:transform 0.1s,box-shadow 0.1s;white-space:nowrap;}
+  .talent-chip:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--sun-dark);}
+
+  /* HERO BANNER */
+  .hero{
+    margin-top:60px;
+    background:var(--pixel-dark);
+    padding:0 clamp(20px,5vw,72px);
+    min-height:230px;
+    display:flex;align-items:stretch;
+    position:relative;overflow:hidden;
+    border-bottom:4px solid var(--pixel-purple);
+  }
+  .hero::before{
+    content:'';position:absolute;inset:0;
+    background-image:linear-gradient(rgba(255,255,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.03) 1px,transparent 1px);
+    background-size:32px 32px;pointer-events:none;
+  }
+  .hero-deco{
+    position:absolute;right:clamp(20px,6vw,80px);top:50%;transform:translateY(-50%);
+    font-size:clamp(80px,13vw,170px);opacity:0.13;pointer-events:none;
+    animation:float 3s ease-in-out infinite alternate;line-height:1;
+  }
+  @keyframes float{from{transform:translateY(calc(-50% - 6px));}to{transform:translateY(calc(-50% + 6px));}}
+  .hero-inner{position:relative;z-index:2;max-width:1100px;width:100%;margin:0 auto;padding:48px 0;display:flex;flex-direction:column;justify-content:center;}
+  .h-eye{font-family:'Press Start 2P',monospace;font-size:8px;color:var(--pink);letter-spacing:4px;margin-bottom:12px;display:flex;align-items:center;gap:10px;}
+  .h-eye::after{content:'';display:inline-block;width:40px;height:2px;background:var(--pink);}
+  .h-title{font-size:clamp(32px,6vw,68px);font-weight:900;color:#fff;line-height:1.0;margin-bottom:18px;letter-spacing:-1px;}
+  .h-title .hl{color:var(--sun);position:relative;display:inline-block;}
+  .h-title .hl::after{content:'';position:absolute;bottom:2px;left:0;right:0;height:4px;background:var(--sun);opacity:0.35;}
+
+  /* HUD BAR */
+  .hud{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+  .hud-item{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);padding:8px 14px;}
+  .hud-lbl{font-size:9px;font-weight:700;color:rgba(255,255,255,0.4);letter-spacing:2px;}
+  .hud-v{font-family:'Press Start 2P',monospace;font-size:10px;color:#fff;}
+  .hud-v.gold{color:var(--sun);}
+  .hud-v.pink{color:var(--pink);}
+  .prog-bar{width:110px;height:8px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);position:relative;overflow:hidden;}
+  .prog-fill{position:absolute;top:0;left:0;bottom:0;width:53%;background:linear-gradient(90deg,var(--pink),var(--sun));animation:pf 1.2s ease forwards;}
+  @keyframes pf{from{width:0;}to{width:53%;}}
+
+  /* TAB STRIP */
+  .tabs{background:var(--white);border-bottom:3px solid var(--pixel-dark);position:sticky;top:60px;z-index:100;}
+  .tabs-inner{max-width:1100px;margin:0 auto;padding:0 clamp(20px,5vw,72px);display:flex;}
+  .tab{padding:16px 32px;font-size:12px;font-weight:900;cursor:pointer;color:var(--muted);border:none;background:none;border-bottom:4px solid transparent;margin-bottom:-3px;transition:color 0.15s,border-color 0.15s,background 0.15s;display:flex;align-items:center;gap:8px;letter-spacing:0.5px;white-space:nowrap;}
+  .tab:hover{background:var(--bg);color:var(--text);}
+  .tab.active{color:var(--text);border-bottom-color:var(--tc);background:var(--bg);}
+  .tab[data-t="유치부"]{--tc:var(--sun);}
+  .tab[data-t="초등부"]{--tc:var(--grass);}
+  .tab[data-t="중고등부"]{--tc:var(--pink);}
+  .pip{width:10px;height:10px;background:var(--tc);display:inline-block;flex-shrink:0;}
+  .cnt{font-family:'Press Start 2P',monospace;font-size:7px;background:var(--tc);color:var(--pixel-dark);padding:2px 6px;}
+
+  /* FLOATING HUD */
+  .hud-float{position:fixed;top:108px;right:clamp(12px,2vw,28px);width:216px;z-index:90;display:flex;flex-direction:column;gap:12px;}
+  @media(max-width:1200px){.hud-float{display:none;}}
+  .hpanel{background:var(--white);border:2px solid var(--pixel-dark);box-shadow:4px 4px 0 var(--pixel-dark);}
+  .hpanel-t{font-family:'Press Start 2P',monospace;font-size:7px;letter-spacing:2px;padding:8px 12px;background:var(--pixel-dark);color:var(--sun);display:flex;justify-content:space-between;}
+  .hpanel-b{padding:12px;}
+  .mrank{display:flex;flex-direction:column;gap:8px;}
+  .mrank-row{display:flex;align-items:center;gap:8px;font-size:11px;padding-bottom:8px;border-bottom:1px dashed var(--border);}
+  .mrank-row:last-child{border-bottom:none;padding-bottom:0;}
+  .mr-med{width:18px;text-align:center;font-size:13px;}
+  .mr-nick{flex:1;font-weight:700;color:var(--text);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .mr-pt{font-family:'Press Start 2P',monospace;font-size:7px;color:var(--pixel-purple);}
+  .mlog{display:flex;flex-direction:column;gap:8px;}
+  .ml-row{display:flex;justify-content:space-between;align-items:center;padding-bottom:8px;border-bottom:1px dashed var(--border);}
+  .ml-row:last-child{border-bottom:none;padding-bottom:0;}
+  .ml-n{font-size:10px;font-weight:700;}
+  .ml-d{font-size:9px;color:var(--muted);}
+  .ml-a{font-family:'Press Start 2P',monospace;font-size:8px;color:var(--grass-dark);}
+
+  /* PAGE BODY */
+  .body{max-width:1100px;margin:0 auto;padding:40px clamp(20px,5vw,72px) 80px;}
+  .panel{display:none;}
+  .panel.active{display:block;}
+
+  /* SECTION LABEL */
+  .slabel{font-family:'Press Start 2P',monospace;font-size:8px;color:var(--muted);letter-spacing:3px;margin-bottom:14px;display:flex;align-items:center;gap:10px;}
+  .slabel::after{content:'';flex:1;height:1px;background:var(--border);}
+
+  /* FEATURED CARD */
+  .feat{
+    display:grid;grid-template-columns:1fr 1fr;
+    min-height:260px;margin-bottom:28px;
+    border:3px solid var(--pixel-dark);
+    box-shadow:6px 6px 0 var(--pixel-dark);
+    overflow:hidden;cursor:pointer;
+    transition:transform 0.15s,box-shadow 0.15s;
+  }
+  .feat:hover{transform:translate(-3px,-3px);box-shadow:9px 9px 0 var(--pixel-dark);}
+  .feat-l{background:var(--fc);padding:36px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden;}
+  .feat-l::before{content:'';position:absolute;inset:0;background-image:repeating-linear-gradient(45deg,rgba(255,255,255,0.07) 0,rgba(255,255,255,0.07) 2px,transparent 2px,transparent 12px);}
+  .feat-emoji{font-size:72px;line-height:1;display:block;filter:drop-shadow(4px 4px 0 rgba(0,0,0,0.2));position:relative;z-index:1;animation:bob 2.5s ease-in-out infinite alternate;}
+  @keyframes bob{from{transform:translateY(0);}to{transform:translateY(-8px);}}
+  .feat-badge{display:inline-block;background:var(--pixel-dark);color:var(--sun);font-family:'Press Start 2P',monospace;font-size:7px;padding:5px 12px;letter-spacing:2px;position:relative;z-index:1;align-self:flex-start;}
+  .feat-r{background:var(--white);padding:36px 32px;display:flex;flex-direction:column;justify-content:space-between;}
+  .feat-name{font-size:clamp(18px,2.5vw,26px);font-weight:900;line-height:1.2;margin-bottom:12px;}
+  .feat-desc{font-size:13px;color:var(--muted);line-height:1.8;flex:1;margin-bottom:20px;}
+  .feat-meta{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+  .feat-pts{font-family:'Press Start 2P',monospace;font-size:18px;color:var(--pixel-purple);}
+  .feat-pts span{color:var(--sun);}
+  .fdots{display:flex;gap:4px;}
+  .fd{width:12px;height:12px;background:var(--fc);opacity:0.2;}
+  .fd.on{opacity:1;}
+  .feat-btn{border:none;background:var(--pixel-dark);color:#fff;padding:14px 28px;font-size:14px;font-weight:900;cursor:pointer;box-shadow:4px 4px 0 var(--pixel-purple);transition:transform 0.1s,box-shadow 0.1s;letter-spacing:0.5px;white-space:nowrap;}
+  .feat-btn:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--pixel-purple);}
+
+  /* GAME GRID */
+  .ggrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;}
+  .gc{border:2px solid var(--pixel-dark);background:var(--white);overflow:hidden;cursor:pointer;transition:transform 0.15s,box-shadow 0.15s;box-shadow:4px 4px 0 var(--pixel-dark);position:relative;}
+  .gc:hover{transform:translate(-3px,-3px);box-shadow:7px 7px 0 var(--pixel-dark);}
+  .gc:active{transform:translate(1px,1px);box-shadow:2px 2px 0 var(--pixel-dark);}
+  .gc.locked{opacity:0.55;cursor:not-allowed;filter:grayscale(0.3);}
+  .gc.locked:hover{transform:none;box-shadow:4px 4px 0 var(--pixel-dark);}
+  .gc-top{background:var(--gc);padding:22px 20px 16px;position:relative;overflow:hidden;}
+  .gc-top::after{content:'';position:absolute;inset:0;background-image:radial-gradient(circle,rgba(255,255,255,0.15) 1px,transparent 1px);background-size:12px 12px;}
+  .gc-e{font-size:38px;display:block;line-height:1;margin-bottom:8px;position:relative;z-index:1;filter:drop-shadow(2px 2px 0 rgba(0,0,0,0.2));}
+  .gc-name{font-weight:900;font-size:14px;color:#fff;text-shadow:1px 1px 0 rgba(0,0,0,0.25);position:relative;z-index:1;line-height:1.3;}
+  .gc-chip{position:absolute;top:10px;right:10px;font-family:'Press Start 2P',monospace;font-size:6px;padding:3px 8px;z-index:2;letter-spacing:1px;}
+  .ch-mvp{background:#fff;color:var(--pixel-dark);}
+  .ch-soon{background:rgba(0,0,0,0.35);color:#fff;}
+  .gc-body{padding:14px 18px 18px;}
+  .gc-desc{font-size:11px;color:var(--muted);line-height:1.65;margin-bottom:14px;}
+  .gc-foot{display:flex;align-items:center;justify-content:space-between;}
+  .gdots{display:flex;gap:3px;}
+  .gd{width:9px;height:9px;background:var(--gc);opacity:0.2;}
+  .gd.on{opacity:1;}
+  .gc-rew{font-family:'Press Start 2P',monospace;font-size:8px;color:var(--pixel-purple);background:#f0eeff;padding:4px 10px;border:1px solid var(--border);}
+  .gc-rew em{color:var(--sun);font-style:normal;}
+  .lock-ov{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;background:rgba(247,246,255,0.72);backdrop-filter:blur(3px);z-index:5;}
+  .lock-ov span{font-family:'Press Start 2P',monospace;font-size:8px;color:var(--muted);text-align:center;letter-spacing:1px;}
+
+  /* MODAL */
+  .modal-bg{position:fixed;inset:0;background:rgba(26,26,46,0.75);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity 0.2s;backdrop-filter:blur(6px);}
+  .modal-bg.open{opacity:1;pointer-events:all;}
+  .modal{background:var(--white);width:100%;max-width:520px;border:3px solid var(--pixel-dark);box-shadow:10px 10px 0 var(--pixel-dark);transform:translateY(16px);transition:transform 0.2s;max-height:90vh;overflow-y:auto;}
+  .modal-bg.open .modal{transform:translateY(0);}
+  .modal-top{background:var(--mc,var(--sun));padding:28px 28px 22px;position:relative;display:flex;align-items:flex-start;gap:20px;}
+  .modal-top::before{content:'';position:absolute;inset:0;background-image:repeating-linear-gradient(45deg,rgba(255,255,255,0.07) 0,rgba(255,255,255,0.07) 2px,transparent 2px,transparent 14px);}
+  .m-emoji{font-size:56px;line-height:1;position:relative;z-index:1;flex-shrink:0;filter:drop-shadow(3px 3px 0 rgba(0,0,0,0.2));}
+  .m-ht{position:relative;z-index:1;}
+  .m-name{font-size:22px;font-weight:900;color:#fff;text-shadow:2px 2px 0 rgba(0,0,0,0.2);margin-bottom:4px;}
+  .m-sub{font-size:11px;color:rgba(255,255,255,0.7);font-weight:700;letter-spacing:1px;}
+  .m-x{position:absolute;top:12px;right:12px;background:rgba(0,0,0,0.2);border:none;color:#fff;width:30px;height:30px;cursor:pointer;font-size:14px;font-weight:900;display:flex;align-items:center;justify-content:center;z-index:2;transition:background 0.15s;}
+  .m-x:hover{background:rgba(0,0,0,0.4);}
+  .m-body{padding:24px 28px 28px;}
+  .m-desc{font-size:13px;color:var(--muted);line-height:1.8;margin-bottom:20px;}
+  .m-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px;}
+  .mst{border:2px solid var(--pixel-dark);padding:12px 14px;background:var(--bg);}
+  .mst-l{font-family:'Press Start 2P',monospace;font-size:7px;color:var(--muted);letter-spacing:1px;margin-bottom:6px;}
+  .mst-v{font-size:15px;font-weight:900;}
+  .m-go{display:block;width:100%;background:var(--pixel-dark);color:#fff;border:none;padding:16px;font-size:15px;font-weight:900;cursor:pointer;box-shadow:5px 5px 0 var(--pixel-purple);transition:transform 0.1s,box-shadow 0.1s;letter-spacing:0.5px;}
+  .m-go:hover{transform:translate(-2px,-2px);box-shadow:7px 7px 0 var(--pixel-purple);}
+
+  @media(max-width:700px){.feat{grid-template-columns:1fr;}.feat-l{min-height:150px;}.feat-emoji{font-size:52px;}.nav-pills{display:none;}.m-stats{grid-template-columns:1fr;}}
+  @media(max-width:500px){.ggrid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="sunday-school-landing.html" class="nav-logo">말씀<span>나라</span></a>
+  <div class="nav-pills">
+    <button class="npill active">🎮 게임센터</button>
+    <button class="npill">🏆 랭킹</button>
+    <button class="npill">🧑‍🎤 아바타</button>
+    <button class="npill">🏡 마이홈</button>
+  </div>
+  <button class="talent-chip">💰 320 달란트</button>
+</nav>
+
+<!-- HERO BANNER -->
+<div class="hero">
+  <div class="hero-deco">🎮</div>
+  <div class="hero-inner">
+    <div class="h-eye">✦ GAME CENTER</div>
+    <h1 class="h-title">성경 <span class="hl">게임</span> 센터</h1>
+    <div class="hud">
+      <div class="hud-item"><span class="hud-lbl">PLAYER</span><span class="hud-v">내닉네임</span></div>
+      <div class="hud-item"><span class="hud-lbl">LEVEL</span><span class="hud-v pink">Lv.3 🌳</span></div>
+      <div class="hud-item">
+        <span class="hud-lbl">EXP</span>
+        <div class="prog-bar"><div class="prog-fill"></div></div>
+        <span class="hud-v" style="font-size:8px;">320/600</span>
+      </div>
+      <div class="hud-item"><span class="hud-lbl">TALENT</span><span class="hud-v gold">💰 320</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <div class="tabs-inner">
+    <button class="tab" data-t="유치부"><span class="pip"></span>🐣 유치부<span class="cnt">2</span></button>
+    <button class="tab active" data-t="초등부"><span class="pip"></span>⭐ 초등부<span class="cnt">3</span></button>
+    <button class="tab" data-t="중고등부"><span class="pip"></span>🔥 중고등부<span class="cnt">2</span></button>
+  </div>
+</div>
+
+<!-- FLOATING HUD -->
+<div class="hud-float">
+  <div class="hpanel">
+    <div class="hpanel-t">🏆 TOP RANK <span>전체</span></div>
+    <div class="hpanel-b">
+      <div class="mrank">
+        <div class="mrank-row"><span class="mr-med">🥇</span><span class="mr-nick">말씀왕</span><span class="mr-pt">1,240</span></div>
+        <div class="mrank-row"><span class="mr-med">🥈</span><span class="mr-nick">하나빛</span><span class="mr-pt">980</span></div>
+        <div class="mrank-row"><span class="mr-med">🥉</span><span class="mr-nick">성경왕</span><span class="mr-pt">870</span></div>
+        <div class="mrank-row" style="background:#fffbe6;margin:0 -12px;padding:6px 12px;border-top:2px dashed rgba(255,209,74,0.4);">
+          <span class="mr-med" style="font-family:'Press Start 2P',monospace;font-size:8px;color:var(--pink);">17</span>
+          <span class="mr-nick" style="color:var(--pink);">내닉네임</span>
+          <span class="mr-pt">320</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="hpanel">
+    <div class="hpanel-t">💰 RECENT LOG</div>
+    <div class="hpanel-b">
+      <div class="mlog">
+        <div class="ml-row"><div><div class="ml-n">말씀 빈칸 채우기</div><div class="ml-d">03.24 14:14</div></div><div class="ml-a">+10</div></div>
+        <div class="ml-row"><div><div class="ml-n">출석 보너스</div><div class="ml-d">03.24 10:30</div></div><div class="ml-a">+20</div></div>
+        <div class="ml-row"><div><div class="ml-n">낱말 퀴즈</div><div class="ml-d">03.23 16:05</div></div><div class="ml-a">+8</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BODY -->
+<div class="body">
+
+  <!-- 유치부 -->
+  <div class="panel" id="p-유치부">
+    <div class="slabel">✦ 추천 게임</div>
+    <div class="feat" style="--fc:#FFD94A;"
+      data-n="성경 그림 낱말 맞추기" data-e="🖼️"
+      data-d="귀여운 성경 그림을 보고 낱말을 맞춰요! 터치 한 번으로 즐길 수 있어요. 가장 쉬운 난이도로 유치부 친구들에게 딱 맞아요."
+      data-dept="유치부" data-time="5분" data-reward="5" data-diff="1">
+      <div class="feat-l"><span class="feat-emoji">🖼️</span><span class="feat-badge">✦ FEATURED</span></div>
+      <div class="feat-r">
+        <div><div class="feat-name">성경 그림 낱말 맞추기</div><div class="feat-desc">귀여운 성경 그림을 보고 낱말을 맞춰요! 터치 한 번으로 즐길 수 있는 쉽고 재미있는 게임이에요.</div></div>
+        <div class="feat-meta">
+          <div><div class="fdots" style="margin-bottom:8px;"><div class="fd on"></div><div class="fd"></div><div class="fd"></div></div><div class="feat-pts"><span>+5</span> 달란트</div></div>
+          <button class="feat-btn">▶ 시작하기</button>
+        </div>
+      </div>
+    </div>
+    <div class="slabel">✦ 전체 게임</div>
+    <div class="ggrid">
+      <div class="gc" style="--gc:#FF9D45;" data-n="말씀 따라 말하기" data-e="🎤" data-d="선생님이 읽어주는 말씀을 따라 말해요. 발음도 좋아지고 달란트도 쌓여요!" data-dept="유치부" data-time="3분" data-reward="8" data-diff="1">
+        <span class="gc-chip ch-mvp">MVP</span>
+        <div class="gc-top"><span class="gc-e">🎤</span><div class="gc-name">말씀 따라 말하기</div></div>
+        <div class="gc-body"><p class="gc-desc">말씀을 들으며 따라 말해요. 발음도 좋아지고 달란트도!</p>
+          <div class="gc-foot"><div class="gdots"><div class="gd on"></div><div class="gd"></div><div class="gd"></div></div><div class="gc-rew"><em>+8</em> 달란트</div></div>
+        </div>
+      </div>
+      <div class="gc locked" style="--gc:#FF5FA0;">
+        <span class="gc-chip ch-soon">SOON</span>
+        <div class="lock-ov"><span>🔒</span><span>PHASE 2</span></div>
+        <div class="gc-top"><span class="gc-e">🎨</span><div class="gc-name">색칠하기 &amp; 스티커</div></div>
+        <div class="gc-body"><p class="gc-desc">성경 그림을 색칠하고 스티커를 붙여요. 나만의 작품!</p>
+          <div class="gc-foot"><div class="gdots"><div class="gd on"></div><div class="gd"></div><div class="gd"></div></div><div class="gc-rew"><em>+10</em> 달란트</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 초등부 -->
+  <div class="panel active" id="p-초등부">
+    <div class="slabel">✦ 이번 주 추천</div>
+    <div class="feat" style="--fc:#FF7043;"
+      data-n="암송 챌린지" data-e="🏆"
+      data-d="이 주의 말씀 구절을 완벽하게 암송해보세요! 클리어 시 보너스 달란트가 지급돼요. 꾸준히 도전해서 랭킹 상위를 노려봐요!"
+      data-dept="초등부" data-time="10분" data-reward="20" data-diff="3">
+      <div class="feat-l"><span class="feat-emoji">🏆</span><span class="feat-badge">✦ WEEKLY PICK</span></div>
+      <div class="feat-r">
+        <div><div class="feat-name">암송 챌린지</div><div class="feat-desc">이 주의 말씀을 완벽 암송! 클리어하면 보너스 달란트가 지급돼요. 랭킹 상위를 노려봐요!</div></div>
+        <div class="feat-meta">
+          <div><div class="fdots" style="margin-bottom:8px;"><div class="fd on"></div><div class="fd on"></div><div class="fd on"></div></div><div class="feat-pts"><span>+20</span> 달란트</div></div>
+          <button class="feat-btn">▶ 도전하기</button>
+        </div>
+      </div>
+    </div>
+    <div class="slabel">✦ 전체 게임</div>
+    <div class="ggrid">
+      <div class="gc" style="--gc:#4FCB7A;" data-n="말씀 빈칸 채우기" data-e="📖" data-d="성경 구절의 빈칸을 채워보세요. 말씀을 자연스럽게 암기할 수 있어요. 난이도는 3단계로 구성되어 있어요." data-dept="초등부" data-time="5~8분" data-reward="10" data-diff="2">
+        <span class="gc-chip ch-mvp">MVP</span>
+        <div class="gc-top"><span class="gc-e">📖</span><div class="gc-name">말씀 빈칸 채우기</div></div>
+        <div class="gc-body"><p class="gc-desc">성경 구절 빈칸을 직접 채워요. 암기하며 달란트를!</p>
+          <div class="gc-foot"><div class="gdots"><div class="gd on"></div><div class="gd on"></div><div class="gd"></div></div><div class="gc-rew"><em>+10</em> 달란트</div></div>
+        </div>
+      </div>
+      <div class="gc" style="--gc:#FFD94A;" data-n="성경 낱말 퀴즈" data-e="🔤" data-d="성경에 등장하는 인물, 장소, 사건의 이름을 맞히는 낱말 퀴즈! 제한 시간 안에 최대한 많이 맞춰보세요." data-dept="초등부" data-time="5분" data-reward="8" data-diff="2">
+        <span class="gc-chip ch-mvp">MVP</span>
+        <div class="gc-top"><span class="gc-e">🔤</span><div class="gc-name">성경 낱말 퀴즈</div></div>
+        <div class="gc-body"><p class="gc-desc">성경 인물·장소·사건! 제한 시간 안에 최대한 많이!</p>
+          <div class="gc-foot"><div class="gdots"><div class="gd on"></div><div class="gd on"></div><div class="gd"></div></div><div class="gc-rew"><em>+8</em> 달란트</div></div>
+        </div>
+      </div>
+      <div class="gc locked" style="--gc:#FF5FA0;">
+        <span class="gc-chip ch-soon">PHASE 2</span>
+        <div class="lock-ov"><span>🔒</span><span>COMING SOON</span></div>
+        <div class="gc-top"><span class="gc-e">🧩</span><div class="gc-name">성경 퍼즐 어드벤처</div></div>
+        <div class="gc-body"><p class="gc-desc">성경 스토리 기반 픽셀 퍼즐 게임. 곧 출시 예정!</p>
+          <div class="gc-foot"><div class="gdots"><div class="gd on"></div><div class="gd on"></div><div class="gd on"></div></div><div class="gc-rew"><em>+30</em> 달란트</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 중고등부 -->
+  <div class="panel" id="p-중고등부">
+    <div class="slabel">✦ 추천 게임</div>
+    <div class="feat" style="--fc:#FF5FA0;"
+      data-n="스피드 퀴즈 배틀" data-e="⚡"
+      data-d="제한 시간 안에 최대한 많은 성경 퀴즈를 맞혀요! 정확도와 속도 둘 다 중요해요. 상위 점수는 실시간 랭킹에 반영됩니다."
+      data-dept="중고등부" data-time="7분" data-reward="15" data-diff="3">
+      <div class="feat-l"><span class="feat-emoji">⚡</span><span class="feat-badge">✦ HOT</span></div>
+      <div class="feat-r">
+        <div><div class="feat-name">스피드 퀴즈 배틀</div><div class="feat-desc">제한 시간 안에 성경 퀴즈를 최대한 많이! 정확도와 속도 둘 다 중요해요. 상위 점수는 랭킹에 반영돼요.</div></div>
+        <div class="feat-meta">
+          <div><div class="fdots" style="margin-bottom:8px;"><div class="fd on"></div><div class="fd on"></div><div class="fd on"></div></div><div class="feat-pts"><span>+15</span> 달란트</div></div>
+          <button class="feat-btn">▶ 배틀 시작</button>
+        </div>
+      </div>
+    </div>
+    <div class="slabel">✦ 전체 게임</div>
+    <div class="ggrid">
+      <div class="gc" style="--gc:#3B2F6E;" data-n="주제별 심화 퀴즈" data-e="📚" data-d="구약·신약·인물·지리 등 주제별로 깊이 있는 성경 지식을 테스트해요. 틀린 문제는 해설과 함께 복습할 수 있어요." data-dept="중고등부" data-time="10분" data-reward="12" data-diff="3">
+        <span class="gc-chip ch-mvp">MVP</span>
+        <div class="gc-top"><span class="gc-e">📚</span><div class="gc-name">주제별 심화 퀴즈</div></div>
+        <div class="gc-body"><p class="gc-desc">구약·신약·인물·지리 심화! 틀린 문제는 해설로 복습.</p>
+          <div class="gc-foot"><div class="gdots"><div class="gd on"></div><div class="gd on"></div><div class="gd on"></div></div><div class="gc-rew"><em>+12</em> 달란트</div></div>
+        </div>
+      </div>
+      <div class="gc locked" style="--gc:#FF7043;">
+        <span class="gc-chip ch-soon">PHASE 2</span>
+        <div class="lock-ov"><span>⚔️</span><span>COMING SOON</span></div>
+        <div class="gc-top"><span class="gc-e">⚔️</span><div class="gc-name">팀 대항전</div></div>
+        <div class="gc-body"><p class="gc-desc">친구들과 팀을 이뤄 성경 배틀! 팀 랭킹 출시 예정.</p>
+          <div class="gc-foot"><div class="gdots"><div class="gd on"></div><div class="gd on"></div><div class="gd on"></div></div><div class="gc-rew"><em>+25</em> 달란트</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- MODAL -->
+<div class="modal-bg" id="modal">
+  <div class="modal">
+    <div class="modal-top" id="mtop">
+      <button class="m-x" id="mx">✕</button>
+      <span class="m-emoji" id="me"></span>
+      <div class="m-ht"><div class="m-name" id="mn"></div><div class="m-sub" id="ms"></div></div>
+    </div>
+    <div class="m-body">
+      <p class="m-desc" id="md"></p>
+      <div class="m-stats">
+        <div class="mst"><div class="mst-l">DEPT</div><div class="mst-v" id="mdept"></div></div>
+        <div class="mst"><div class="mst-l">TIME</div><div class="mst-v" id="mtime"></div></div>
+        <div class="mst"><div class="mst-l">REWARD</div><div class="mst-v" id="mrew" style="color:var(--pixel-purple)"></div></div>
+        <div class="mst"><div class="mst-l">DIFF</div><div class="mst-v" id="mdiff"></div></div>
+      </div>
+      <button class="m-go" id="mgo">▶ 지금 바로 시작하기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // 탭
+  document.querySelectorAll('.tab').forEach(t=>{
+    t.addEventListener('click',()=>{
+      document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+      document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
+      t.classList.add('active');
+      document.getElementById('p-'+t.dataset.t).classList.add('active');
+    });
+  });
+
+  // nav pill
+  document.querySelectorAll('.npill').forEach(p=>{
+    p.addEventListener('click',()=>{document.querySelectorAll('.npill').forEach(x=>x.classList.remove('active'));p.classList.add('active');});
+  });
+
+  // 모달
+  const modal=document.getElementById('modal');
+  const diff=n=>['★☆☆','★★☆','★★★'][n-1]||'★☆☆';
+
+  function open(src){
+    const fc=getComputedStyle(src).getPropertyValue('--fc').trim()||getComputedStyle(src).getPropertyValue('--gc').trim();
+    document.getElementById('me').textContent=src.dataset.e;
+    document.getElementById('mn').textContent=src.dataset.n;
+    document.getElementById('ms').textContent=src.dataset.dept+' · +'+src.dataset.reward+' 달란트';
+    document.getElementById('md').textContent=src.dataset.d;
+    document.getElementById('mdept').textContent=src.dataset.dept;
+    document.getElementById('mtime').textContent=src.dataset.time;
+    document.getElementById('mrew').textContent='+'+src.dataset.reward+' 달란트';
+    document.getElementById('mdiff').textContent=diff(+src.dataset.diff);
+    document.getElementById('mtop').style.background=fc;
+    document.documentElement.style.setProperty('--mc',fc);
+    modal.classList.add('open');
+  }
+
+  document.querySelectorAll('.feat').forEach(c=>{
+    c.querySelector('.feat-btn').addEventListener('click',e=>{e.stopPropagation();open(c);});
+    c.addEventListener('click',()=>open(c));
+  });
+  document.querySelectorAll('.gc:not(.locked)').forEach(c=>c.addEventListener('click',()=>open(c)));
+
+  document.getElementById('mx').addEventListener('click',()=>modal.classList.remove('open'));
+  modal.addEventListener('click',e=>{if(e.target===modal)modal.classList.remove('open');});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')modal.classList.remove('open');});
+  document.getElementById('mgo').addEventListener('click',()=>{alert('게임 플레이 화면은 Phase 1 개발 시 연결됩니다!');modal.classList.remove('open');});
+</script>
+</body>
+</html>

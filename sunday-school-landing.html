@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>말씀나라 — 주일학교 플랫폼</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sky: #6EC6F5;
+    --sun: #FFD94A;
+    --grass: #4FCB7A;
+    --soil: #A0522D;
+    --cloud: #FFFFFF;
+    --pixel-dark: #1a1a2e;
+    --pixel-purple: #3B2F6E;
+    --accent-orange: #FF7043;
+    --accent-pink: #FF5FA0;
+    --star: #FFE066;
+    /* 라이트 테마 오버라이드 */
+    --card-bg: rgba(255,255,255,0.85);
+    --border: rgba(90,70,160,0.18);
+    --text-light: #1a1a2e;
+    --text-muted: #5a5a8a;
+    --body-bg: #f7f6ff;
+    --section-alt: #f0eeff;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: #f7f6ff;
+    color: #1a1a2e;
+    overflow-x: hidden;
+  }
+
+  /* ── PIXEL FONT HELPER ── */
+  .pixel { font-family: 'Press Start 2P', monospace; }
+
+  /* ══════════════════════════════
+     HERO — 픽셀 하늘 월드
+  ══════════════════════════════ */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    background: linear-gradient(180deg,
+      #c8d8ff 0%,
+      #a0b8f8 20%,
+      #6EC6F5 55%,
+      #a8e6cf 80%,
+      #4FCB7A 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    padding: 0 20px;
+  }
+
+  /* 별 레이어 */
+  .stars {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 50%;
+    pointer-events: none;
+  }
+  .star-dot {
+    position: absolute;
+    background: #fff;
+    border-radius: 0;
+    animation: twinkle 2s infinite alternate;
+  }
+  @keyframes twinkle {
+    from { opacity: 0.3; }
+    to   { opacity: 1; }
+  }
+
+  /* 픽셀 구름 */
+  .clouds {
+    position: absolute;
+    top: 38%;
+    width: 100%;
+    pointer-events: none;
+  }
+  .cloud {
+    position: absolute;
+    background: #fff;
+    opacity: 0.92;
+    image-rendering: pixelated;
+    animation: float-cloud linear infinite;
+  }
+  .cloud::before, .cloud::after {
+    content: '';
+    position: absolute;
+    background: #fff;
+  }
+  /* 구름 A */
+  .cloud-a { width:72px; height:24px; top:0; border-radius:0; animation-duration:28s; }
+  .cloud-a::before { width:40px; height:20px; top:-16px; left:12px; }
+  .cloud-a::after  { width:24px; height:14px; top:-10px; left:36px; }
+  /* 구름 B */
+  .cloud-b { width:100px; height:28px; top:40px; animation-duration:40s; animation-delay:-12s; opacity:0.7; }
+  .cloud-b::before { width:56px; height:24px; top:-18px; left:16px; }
+  /* 구름 C */
+  .cloud-c { width:56px; height:18px; top:20px; animation-duration:34s; animation-delay:-6s; opacity:0.85; }
+  .cloud-c::before { width:28px; height:16px; top:-12px; left:10px; }
+
+  @keyframes float-cloud {
+    from { transform: translateX(-160px); }
+    to   { transform: translateX(110vw); }
+  }
+
+  /* 픽셀 태양 */
+  .sun-pixel {
+    position: absolute;
+    top: 10%;
+    right: 12%;
+    width: 64px; height: 64px;
+    background: var(--sun);
+    box-shadow:
+      0 0 0 8px #FFE599,
+      0 0 0 16px rgba(255,220,80,0.28),
+      0 0 40px 20px rgba(255,220,80,0.18);
+    animation: sun-pulse 3s ease-in-out infinite alternate;
+    image-rendering: pixelated;
+  }
+  @keyframes sun-pulse {
+    from { box-shadow: 0 0 0 8px #FFE599, 0 0 0 16px rgba(255,220,80,0.28); }
+    to   { box-shadow: 0 0 0 12px #FFE599, 0 0 0 24px rgba(255,220,80,0.36); }
+  }
+
+  /* 픽셀 산/언덕 */
+  .ground-layer {
+    position: absolute;
+    bottom: 0;
+    left: 0; right: 0;
+    height: 130px;
+    background: #3a9e5a;
+    clip-path: polygon(
+      0% 100%, 0% 55%,
+      5% 50%, 12% 42%, 18% 38%, 24% 42%,
+      30% 55%, 38% 40%, 44% 30%, 50% 38%,
+      56% 52%, 62% 38%, 68% 28%, 74% 34%,
+      80% 48%, 86% 38%, 92% 44%, 100% 35%,
+      100% 100%
+    );
+  }
+  .ground-layer-2 {
+    position: absolute;
+    bottom: 0;
+    left: 0; right: 0;
+    height: 80px;
+    background: #2e7d43;
+    clip-path: polygon(
+      0% 100%, 0% 70%,
+      8% 60%, 16% 68%,
+      24% 55%, 32% 65%,
+      40% 52%, 48% 62%,
+      56% 50%, 64% 58%,
+      72% 46%, 80% 55%,
+      88% 60%, 100% 48%,
+      100% 100%
+    );
+  }
+
+  /* 픽셀 나무 장식 */
+  .pixel-tree {
+    position: absolute;
+    bottom: 60px;
+    image-rendering: pixelated;
+  }
+  .pixel-tree .trunk  { width:12px; height:28px; background:#7B4B1A; margin:0 auto; }
+  .pixel-tree .leaves { width:48px; height:40px; background:#3CB371; position:relative; left:-18px; bottom:0; }
+  .pixel-tree .leaves::before {
+    content:''; position:absolute;
+    width:36px; height:32px;
+    background:#2E8B57;
+    top:-22px; left:6px;
+  }
+  .tree-1 { left: 6%; }
+  .tree-2 { left: 14%; }
+  .tree-3 { right: 8%; }
+  .tree-4 { right: 18%; }
+
+  /* ── HERO CONTENT ── */
+  .hero-content {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    padding-bottom: 120px;
+  }
+
+  .badge-new {
+    display: inline-block;
+    background: var(--accent-pink);
+    color: #fff;
+    font-size: 10px;
+    padding: 4px 14px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    font-weight: 700;
+    clip-path: polygon(6px 0%, calc(100% - 6px) 0%, 100% 50%, calc(100% - 6px) 100%, 6px 100%, 0% 50%);
+  }
+
+  .hero-title {
+    font-size: clamp(28px, 6vw, 64px);
+    font-weight: 900;
+    line-height: 1.1;
+    letter-spacing: -1px;
+    color: #1a1a2e;
+    text-shadow:
+      3px 3px 0 rgba(255,255,255,0.6),
+      6px 6px 0 rgba(59,47,110,0.2);
+    margin-bottom: 8px;
+  }
+  .hero-title .accent { color: var(--sun); }
+
+  .hero-subtitle-pixel {
+    font-family: 'Press Start 2P', monospace;
+    font-size: clamp(9px, 1.4vw, 13px);
+    color: #3B2F6E;
+    letter-spacing: 2px;
+    margin-bottom: 28px;
+    text-shadow: 1px 1px 0 rgba(255,255,255,0.5);
+  }
+
+  .hero-desc {
+    font-size: clamp(14px, 2vw, 17px);
+    color: #2a2a50;
+    max-width: 520px;
+    margin: 0 auto 36px;
+    line-height: 1.8;
+    font-weight: 400;
+  }
+
+  .hero-cta-group {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .btn-primary {
+    background: var(--sun);
+    color: var(--pixel-dark);
+    border: none;
+    padding: 14px 34px;
+    font-size: 15px;
+    font-weight: 900;
+    cursor: pointer;
+    position: relative;
+    text-decoration: none;
+    display: inline-block;
+    box-shadow: 4px 4px 0 #b8860b, 8px 8px 0 rgba(0,0,0,0.2);
+    transition: transform 0.1s, box-shadow 0.1s;
+  }
+  .btn-primary:hover {
+    transform: translate(-2px,-2px);
+    box-shadow: 6px 6px 0 #b8860b, 12px 12px 0 rgba(0,0,0,0.2);
+  }
+  .btn-primary:active {
+    transform: translate(2px,2px);
+    box-shadow: 2px 2px 0 #b8860b;
+  }
+
+  .btn-secondary {
+    background: transparent;
+    color: #fff;
+    border: 2px solid rgba(255,255,255,0.6);
+    padding: 14px 34px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .btn-secondary:hover {
+    background: rgba(255,255,255,0.12);
+    border-color: #fff;
+  }
+
+  /* 스크롤 힌트 */
+  .scroll-hint {
+    position: absolute;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    opacity: 0.7;
+  }
+  .scroll-hint span {
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: #3B2F6E;
+    font-weight: 700;
+  }
+  .scroll-arrow {
+    width: 16px; height: 16px;
+    border-right: 3px solid #3B2F6E;
+    border-bottom: 3px solid #3B2F6E;
+    transform: rotate(45deg);
+    animation: bounce-down 1.2s ease-in-out infinite;
+  }
+  @keyframes bounce-down {
+    0%,100% { transform: rotate(45deg) translateY(0); }
+    50%      { transform: rotate(45deg) translateY(6px); }
+  }
+
+  /* ══════════════════════════════
+     STATS BAR
+  ══════════════════════════════ */
+  .stats-bar {
+    background: #f0eeff;
+    border-top: 4px solid var(--sun);
+    border-bottom: 4px solid var(--sun);
+    padding: 20px 0;
+    overflow: hidden;
+  }
+  .stats-inner {
+    display: flex;
+    justify-content: center;
+    gap: clamp(20px, 5vw, 80px);
+    flex-wrap: wrap;
+    padding: 0 20px;
+  }
+  .stat-item {
+    text-align: center;
+  }
+  .stat-num {
+    font-family: 'Press Start 2P', monospace;
+    font-size: clamp(18px, 3vw, 28px);
+    color: #3B2F6E;
+    display: block;
+  }
+  .stat-label {
+    font-size: 12px;
+    color: #5a5a8a;
+    margin-top: 4px;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+
+  /* ══════════════════════════════
+     FEATURES SECTION
+  ══════════════════════════════ */
+  .section {
+    padding: clamp(60px, 8vw, 100px) 20px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .section-eyebrow {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 9px;
+    color: var(--accent-pink);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    display: block;
+  }
+  .section-title {
+    font-size: clamp(26px, 4vw, 42px);
+    font-weight: 900;
+    line-height: 1.2;
+    margin-bottom: 16px;
+    color: #1a1a2e;
+  }
+  .section-title .hl { color: var(--sun); }
+  .section-desc {
+    color: #5a5a8a;
+    font-size: 15px;
+    line-height: 1.8;
+    max-width: 520px;
+    margin-bottom: 52px;
+  }
+
+  /* 기능 카드 그리드 */
+  .feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 24px;
+  }
+
+  .feature-card {
+    background: #ffffff;
+    border: 1px solid rgba(90,70,160,0.15);
+    padding: 32px 28px;
+    position: relative;
+    transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+    box-shadow: 0 2px 12px rgba(59,47,110,0.06);
+  }
+  .feature-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 4px; height: 100%;
+    background: var(--accent);
+  }
+  .feature-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(90,70,160,0.3);
+    box-shadow: 0 8px 28px rgba(59,47,110,0.12);
+  }
+
+  .feature-card[data-accent="yellow"]  { --accent: var(--sun); }
+  .feature-card[data-accent="green"]   { --accent: var(--grass); }
+  .feature-card[data-accent="pink"]    { --accent: var(--accent-pink); }
+  .feature-card[data-accent="orange"]  { --accent: var(--accent-orange); }
+
+  .feature-icon {
+    font-size: 36px;
+    margin-bottom: 16px;
+    display: block;
+    filter: drop-shadow(0 0 8px rgba(255,255,255,0.3));
+  }
+  .feature-card h3 {
+    font-size: 18px;
+    font-weight: 900;
+    margin-bottom: 10px;
+    color: #1a1a2e;
+  }
+  .feature-card p {
+    font-size: 13px;
+    color: #5a5a8a;
+    line-height: 1.7;
+  }
+  .feature-tag {
+    display: inline-block;
+    margin-top: 14px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    padding: 3px 10px;
+  }
+
+  /* ══════════════════════════════
+     GRADE SECTION
+  ══════════════════════════════ */
+  .grade-section {
+    background: linear-gradient(135deg, #f0eeff 0%, #e8e0ff 100%);
+    border-top: 3px solid rgba(59,47,110,0.15);
+    border-bottom: 3px solid rgba(59,47,110,0.15);
+    padding: clamp(60px, 8vw, 100px) 20px;
+  }
+  .grade-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .grade-track {
+    display: flex;
+    gap: 0;
+    margin-top: 40px;
+    align-items: flex-end;
+    overflow-x: auto;
+    padding-bottom: 10px;
+  }
+  .grade-step {
+    flex: 1;
+    min-width: 120px;
+    text-align: center;
+    position: relative;
+    padding: 20px 10px 12px;
+    transition: transform 0.2s;
+  }
+  .grade-step:hover { transform: translateY(-6px); }
+  .grade-step::after {
+    content: '▶';
+    position: absolute;
+    right: -10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(255,255,255,0.25);
+    font-size: 16px;
+    z-index: 2;
+  }
+  .grade-step:last-child::after { display: none; }
+
+  .grade-bar {
+    width: 100%;
+    background: rgba(59,47,110,0.08);
+    border-radius: 0;
+    margin-bottom: 12px;
+    border: 1px solid rgba(59,47,110,0.12);
+  }
+  .grade-range {
+    font-size: 10px;
+    color: #5a5a8a;
+    font-weight: 700;
+  }
+  .grade-lv {
+    display: inline-block;
+    background: var(--grade-color);
+    color: #000;
+    font-size: 9px;
+    font-weight: 900;
+    padding: 2px 8px;
+    margin-top: 6px;
+    font-family: 'Press Start 2P', monospace;
+  }
+
+  /* ══════════════════════════════
+     RANKING PREVIEW
+  ══════════════════════════════ */
+  .ranking-section {
+    padding: clamp(60px, 8vw, 100px) 20px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  .ranking-table-wrap {
+    background: #ffffff;
+    border: 1px solid rgba(59,47,110,0.15);
+    overflow: hidden;
+    margin-top: 40px;
+    box-shadow: 0 4px 20px rgba(59,47,110,0.07);
+  }
+  .ranking-tab-bar {
+    display: flex;
+    border-bottom: 1px solid rgba(59,47,110,0.12);
+    background: #f7f6ff;
+  }
+  .r-tab {
+    padding: 12px 24px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+    color: #5a5a8a;
+    border-bottom: 3px solid transparent;
+    transition: color 0.2s, border-color 0.2s;
+    background: none; border-top:none; border-left:none; border-right:none;
+  }
+  .r-tab.active {
+    color: var(--pixel-purple);
+    border-bottom-color: var(--sun);
+  }
+  thead tr {
+    background: #f0eeff;
+    border-bottom: 1px solid rgba(59,47,110,0.12);
+  }
+  thead th {
+    padding: 12px 16px;
+    text-align: left;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: #5a5a8a;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  tbody tr {
+    border-bottom: 1px solid rgba(59,47,110,0.06);
+    transition: background 0.15s;
+    color: #1a1a2e;
+  }
+  tbody tr:hover { background: #f7f6ff; }
+  tbody tr.me-row { background: rgba(255,209,74,0.10); }
+  tbody td {
+    padding: 14px 16px;
+    white-space: nowrap;
+  }
+  .rank-num {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 11px;
+    width: 40px;
+    text-align: center;
+  }
+  .rank-medal { font-size: 18px; }
+  .nick { font-weight: 700; }
+  .talent-num {
+    color: var(--pixel-purple);
+    font-weight: 900;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 11px;
+  }
+  .date-cell { color: #5a5a8a; font-size: 11px; }
+  .nick { font-weight: 700; color: #1a1a2e; }
+  .me-tag {
+    display: inline-block;
+    background: var(--accent-pink);
+    color: #fff;
+    font-size: 8px;
+    font-weight: 700;
+    padding: 2px 6px;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+
+  /* ══════════════════════════════
+     DEPARTMENT SECTION
+  ══════════════════════════════ */
+  .dept-section {
+    background: #f7f6ff;
+    border-top: 3px solid rgba(59,47,110,0.1);
+    padding: clamp(60px, 8vw, 100px) 20px;
+  }
+  .dept-inner { max-width: 1100px; margin: 0 auto; }
+  .dept-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 28px;
+    margin-top: 44px;
+  }
+  .dept-card {
+    background: #ffffff;
+    padding: 36px 32px;
+    border: 2px solid var(--dept-color);
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .dept-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.08), 0 0 0 1px var(--dept-color);
+  }
+  .dept-card p {
+    font-size: 13px;
+    color: #5a5a8a;
+    line-height: 1.7;
+    margin-bottom: 20px;
+  }
+  .dept-age {
+    font-size: 11px;
+    color: #5a5a8a;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+    display: block;
+  }
+  .game-list li {
+    font-size: 12px;
+    color: #1a1a2e;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .game-list li::before {
+    content: '▸';
+    color: var(--dept-color);
+    font-size: 10px;
+  }
+
+  /* ══════════════════════════════
+     CTA BANNER
+  ══════════════════════════════ */
+  .cta-banner {
+    background: #f0eeff;
+    border-top: 4px solid var(--sun);
+    padding: clamp(60px, 8vw, 100px) 20px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .cta-banner::before {
+    content: '';
+    position: absolute;
+    top: -80px; left: 50%;
+    transform: translateX(-50%);
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(255,217,74,0.18) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .cta-banner h2 {
+    font-size: clamp(24px, 4vw, 42px);
+    font-weight: 900;
+    margin-bottom: 16px;
+    color: #1a1a2e;
+  }
+  .cta-banner p {
+    color: #5a5a8a;
+    font-size: 15px;
+    margin-bottom: 36px;
+    max-width: 480px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.7;
+  }
+  .cta-btn-large {
+    background: var(--sun);
+    color: var(--pixel-dark);
+    border: none;
+    padding: 18px 52px;
+    font-size: 17px;
+    font-weight: 900;
+    cursor: pointer;
+    position: relative;
+    box-shadow: 6px 6px 0 #b8860b;
+    transition: transform 0.1s, box-shadow 0.1s;
+    text-decoration: none;
+    display: inline-block;
+  }
+  .cta-btn-large:hover {
+    transform: translate(-2px,-2px);
+    box-shadow: 8px 8px 0 #b8860b;
+  }
+
+  /* ══════════════════════════════
+     FOOTER
+  ══════════════════════════════ */
+  footer {
+    background: #0d0d1a;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    padding: 32px 20px;
+    text-align: center;
+  }
+  .footer-logo {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 11px;
+    color: var(--sun);
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+  }
+  footer p {
+    font-size: 11px;
+    color: rgba(255,255,255,0.25);
+    line-height: 1.8;
+  }
+
+  /* ══════════════════════════════
+     NAV
+  ══════════════════════════════ */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px clamp(20px, 4vw, 48px);
+    background: rgba(26,26,46,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .nav-logo {
+    font-family: 'Press Start 2P', monospace;
+    font-size: clamp(10px, 1.6vw, 13px);
+    color: var(--sun);
+    letter-spacing: 1px;
+    text-shadow: 2px 2px 0 rgba(0,0,0,0.5);
+  }
+  .nav-logo span { color: #fff; }
+  .nav-links {
+    display: flex;
+    gap: clamp(16px, 2.5vw, 32px);
+    list-style: none;
+    align-items: center;
+  }
+  .nav-links a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: #fff; }
+  .nav-btn {
+    background: var(--sun);
+    color: var(--pixel-dark) !important;
+    padding: 8px 20px;
+    font-weight: 900 !important;
+    font-size: 12px !important;
+    box-shadow: 3px 3px 0 #b8860b;
+    transition: transform 0.1s, box-shadow 0.1s !important;
+  }
+  .nav-btn:hover {
+    transform: translate(-1px,-1px);
+    box-shadow: 4px 4px 0 #b8860b !important;
+    color: var(--pixel-dark) !important;
+  }
+
+  /* ── 반응형 ── */
+  @media (max-width: 600px) {
+    .nav-links li:not(:last-child) { display: none; }
+    .grade-track { gap: 0; }
+    .grade-step { min-width: 90px; }
+    thead th:nth-child(1),
+    tbody td:nth-child(1) { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+  <div class="nav-logo">말씀<span>나라</span></div>
+  <ul class="nav-links">
+    <li><a href="#features">기능</a></li>
+    <li><a href="#grades">레벨</a></li>
+    <li><a href="#ranking">랭킹</a></li>
+    <li><a href="#departments">부서</a></li>
+    <li><a href="#" class="nav-btn">시작하기 →</a></li>
+  </ul>
+</nav>
+
+<!-- ══ HERO ══ -->
+<section class="hero">
+  <!-- 별 -->
+  <div class="stars" id="stars"></div>
+  <!-- 태양 -->
+  <div class="sun-pixel"></div>
+  <!-- 구름 -->
+  <div class="clouds">
+    <div class="cloud cloud-a" style="left:-80px;"></div>
+    <div class="cloud cloud-b" style="left:-120px; top:20px;"></div>
+    <div class="cloud cloud-c" style="left:-60px; top:60px;"></div>
+  </div>
+  <!-- 콘텐츠 -->
+  <div class="hero-content">
+    <div class="badge-new">✦ NEW PLATFORM ✦</div>
+    <h1 class="hero-title">
+      말씀으로 <span class="accent">레벨업</span>하는<br>
+      우리들의 나라
+    </h1>
+    <p class="hero-subtitle-pixel">SUNDAY SCHOOL PLAY PLATFORM</p>
+    <p class="hero-desc">
+      성경 게임으로 달란트를 쌓고, 아바타를 꾸미고,<br>
+      천국 집을 완성해 나가요! 🏡
+    </p>
+    <div class="hero-cta-group">
+      <a href="#" class="btn-primary">🎮 지금 시작하기</a>
+      <a href="#features" class="btn-secondary">더 알아보기 ↓</a>
+    </div>
+  </div>
+  <!-- 땅 -->
+  <div class="ground-layer"></div>
+  <div class="ground-layer-2"></div>
+  <!-- 픽셀 나무 -->
+  <div class="pixel-tree tree-1"><div class="leaves"></div><div class="trunk"></div></div>
+  <div class="pixel-tree tree-2"><div class="leaves"></div><div class="trunk"></div></div>
+  <div class="pixel-tree tree-3"><div class="leaves"></div><div class="trunk"></div></div>
+  <div class="pixel-tree tree-4"><div class="leaves"></div><div class="trunk"></div></div>
+  <!-- 스크롤 힌트 -->
+  <div class="scroll-hint">
+    <span>SCROLL</span>
+    <div class="scroll-arrow"></div>
+  </div>
+</section>
+
+<!-- ══ STATS BAR ══ -->
+<div class="stats-bar">
+  <div class="stats-inner">
+    <div class="stat-item">
+      <span class="stat-num">3</span>
+      <div class="stat-label">부서 지원</div>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num">5</span>
+      <div class="stat-label">레벨 등급</div>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num">∞</span>
+      <div class="stat-label">달란트 미션</div>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num">실시간</span>
+      <div class="stat-label">랭킹 업데이트</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ FEATURES ══ -->
+<section class="section" id="features">
+  <span class="section-eyebrow">✦ FEATURES</span>
+  <h2 class="section-title">재미있어야 <span class="hl">배운다</span></h2>
+  <p class="section-desc">놀이처럼 즐기면서 말씀이 마음에 새겨지는 4가지 핵심 기능</p>
+  <div class="feature-grid">
+    <div class="feature-card" data-accent="yellow">
+      <span class="feature-icon">🎮</span>
+      <h3>성경 게임 센터</h3>
+      <p>유치부·초등부·중고등부 난이도별 맞춤 게임. 낱말 맞추기, 빈칸 채우기, 스피드 퀴즈 배틀!</p>
+      <span class="feature-tag">PHASE 1 MVP</span>
+    </div>
+    <div class="feature-card" data-accent="orange">
+      <span class="feature-icon">💰</span>
+      <h3>달란트 시스템</h3>
+      <p>게임·출석·암송 활동으로 달란트를 쌓아요. 교사가 직접 지급도 가능하고 모든 내역이 기록됩니다.</p>
+      <span class="feature-tag">PHASE 1 MVP</span>
+    </div>
+    <div class="feature-card" data-accent="pink">
+      <span class="feature-icon">🧑‍🎤</span>
+      <h3>아바타 꾸미기</h3>
+      <p>나만의 2D 캐릭터를 꾸미세요. 달란트로 헤어·옷·액세서리를 구매하고 랭킹에 나를 표현해요!</p>
+      <span class="feature-tag">PHASE 2</span>
+    </div>
+    <div class="feature-card" data-accent="green">
+      <span class="feature-icon">🏡</span>
+      <h3>천국 집 꾸미기</h3>
+      <p>나만의 천국 집을 완성해 가요. 가구와 배경을 배치하고, 친구 집도 방문할 수 있어요.</p>
+      <span class="feature-tag">PHASE 2</span>
+    </div>
+  </div>
+</section>
+
+<!-- ══ GRADE SECTION ══ -->
+<section class="grade-section" id="grades">
+  <div class="grade-inner">
+    <span class="section-eyebrow">✦ LEVEL SYSTEM</span>
+    <h2 class="section-title">달란트를 쌓을수록 <span class="hl">성장</span>해요</h2>
+    <p class="section-desc">5단계 레벨 시스템. 꾸준히 참여할수록 더 특별한 등급이 기다려요!</p>
+    <div class="grade-track">
+      <div class="grade-step">
+        <div class="grade-bar" style="height:80px;">
+          <div class="grade-fill" style="--grade-color:#80d4ff; height:30%; background:#80d4ff;"></div>
+        </div>
+        <span class="grade-emoji">🌱</span>
+        <span class="grade-name" style="--grade-color:#80d4ff; color:#80d4ff;">씨앗</span>
+        <div class="grade-range">0 ~ 99</div>
+        <span class="grade-lv" style="background:#80d4ff;">Lv.1</span>
+      </div>
+      <div class="grade-step">
+        <div class="grade-bar" style="height:100px;">
+          <div class="grade-fill" style="height:45%; background:#4FCB7A;"></div>
+        </div>
+        <span class="grade-emoji">🌿</span>
+        <span class="grade-name" style="color:#4FCB7A;">새싹</span>
+        <div class="grade-range">100 ~ 299</div>
+        <span class="grade-lv" style="background:#4FCB7A;">Lv.2</span>
+      </div>
+      <div class="grade-step">
+        <div class="grade-bar" style="height:120px;">
+          <div class="grade-fill" style="height:60%; background:#FFD94A;"></div>
+        </div>
+        <span class="grade-emoji">🌳</span>
+        <span class="grade-name" style="color:#FFD94A;">나무</span>
+        <div class="grade-range">300 ~ 599</div>
+        <span class="grade-lv" style="background:#FFD94A; color:#000;">Lv.3</span>
+      </div>
+      <div class="grade-step">
+        <div class="grade-bar" style="height:140px;">
+          <div class="grade-fill" style="height:75%; background:#FF9D45;"></div>
+        </div>
+        <span class="grade-emoji">🍊</span>
+        <span class="grade-name" style="color:#FF9D45;">열매</span>
+        <div class="grade-range">600 ~ 999</div>
+        <span class="grade-lv" style="background:#FF9D45; color:#000;">Lv.4</span>
+      </div>
+      <div class="grade-step">
+        <div class="grade-bar" style="height:160px;">
+          <div class="grade-fill" style="height:100%; background:linear-gradient(180deg,#ffe066,#FF5FA0);"></div>
+        </div>
+        <span class="grade-emoji">⚔️</span>
+        <span class="grade-name" style="color:#ffe066;">빛의 용사</span>
+        <div class="grade-range">1000+</div>
+        <span class="grade-lv" style="background:linear-gradient(90deg,#ffe066,#FF5FA0); color:#000;">Lv.5</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ RANKING ══ -->
+<section class="ranking-section" id="ranking">
+  <span class="section-eyebrow">✦ RANKING</span>
+  <h2 class="section-title">명예의 <span class="hl">전당</span></h2>
+  <p class="section-desc">실시간 랭킹 차트. 나의 순위는 항상 하단에 고정됩니다.</p>
+  <div class="ranking-table-wrap">
+    <div class="ranking-tab-bar">
+      <button class="r-tab active">🌍 전체 랭킹</button>
+      <button class="r-tab">⭐ 초등부</button>
+      <button class="r-tab">🌱 유치부</button>
+      <button class="r-tab">🔥 중고등부</button>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>순위</th>
+          <th>아이디</th>
+          <th>닉네임</th>
+          <th>누적 달란트</th>
+          <th>레벨</th>
+          <th>최근 적립일</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="rank-num"><span class="rank-medal">🥇</span></td>
+          <td style="color:var(--text-muted);font-size:12px;">word_king</td>
+          <td class="nick">말씀왕</td>
+          <td class="talent-num">1,240</td>
+          <td><span class="level-badge lv5">Lv.5</span></td>
+          <td class="date-cell">03.24</td>
+        </tr>
+        <tr>
+          <td class="rank-num"><span class="rank-medal">🥈</span></td>
+          <td style="color:var(--text-muted);font-size:12px;">hana_light</td>
+          <td class="nick">하나빛</td>
+          <td class="talent-num">980</td>
+          <td><span class="level-badge lv4">Lv.4</span></td>
+          <td class="date-cell">03.23</td>
+        </tr>
+        <tr>
+          <td class="rank-num"><span class="rank-medal">🥉</span></td>
+          <td style="color:var(--text-muted);font-size:12px;">bible_star</td>
+          <td class="nick">성경왕</td>
+          <td class="talent-num">870</td>
+          <td><span class="level-badge lv4">Lv.4</span></td>
+          <td class="date-cell">03.22</td>
+        </tr>
+        <tr>
+          <td class="rank-num" style="color:var(--text-muted);">4</td>
+          <td style="color:var(--text-muted);font-size:12px;">faith_j</td>
+          <td class="nick">믿음이</td>
+          <td class="talent-num" style="color:#b0cfee;">750</td>
+          <td><span class="level-badge lv3">Lv.3</span></td>
+          <td class="date-cell">03.21</td>
+        </tr>
+        <tr>
+          <td class="rank-num" style="color:var(--text-muted);">5</td>
+          <td style="color:var(--text-muted);font-size:12px;">grace99</td>
+          <td class="nick">은혜로</td>
+          <td class="talent-num" style="color:#b0cfee;">610</td>
+          <td><span class="level-badge lv3">Lv.3</span></td>
+          <td class="date-cell">03.20</td>
+        </tr>
+        <tr style="border-top:2px dashed rgba(255,209,74,0.3);">
+          <td colspan="6" style="padding:6px 16px; font-size:10px; color:rgba(255,209,74,0.5); letter-spacing:2px; font-weight:700;">─── 나의 순위 ───</td>
+        </tr>
+        <tr class="me-row">
+          <td class="rank-num" style="color:var(--sun);">17</td>
+          <td style="color:var(--text-muted);font-size:12px;">my_id</td>
+          <td class="nick">내닉네임 <span class="me-tag">ME</span></td>
+          <td class="talent-num">320</td>
+          <td><span class="level-badge lv3">Lv.3</span></td>
+          <td class="date-cell">03.24</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ══ DEPARTMENT ══ -->
+<section class="dept-section" id="departments">
+  <div class="dept-inner">
+    <span class="section-eyebrow">✦ DEPARTMENTS</span>
+    <h2 class="section-title">내 <span class="hl">부서</span>를 선택하세요</h2>
+    <p class="section-desc">연령에 맞는 난이도와 콘텐츠로 구성된 3개 부서</p>
+    <div class="dept-grid">
+      <div class="dept-card" data-dept="유치부">
+        <span class="dept-emoji">🐣</span>
+        <span class="dept-name">유치부</span>
+        <span class="dept-age">5 ~ 7세 · KINDERGARTEN</span>
+        <p>그림과 색깔로 배우는 성경 이야기. 터치 한 번으로 즐길 수 있는 쉽고 재미있는 게임!</p>
+        <ul class="game-list">
+          <li>성경 그림 낱말 맞추기</li>
+          <li>색칠하기 & 스티커 붙이기</li>
+          <li>말씀 따라 말하기</li>
+        </ul>
+      </div>
+      <div class="dept-card" data-dept="초등부">
+        <span class="dept-emoji">⭐</span>
+        <span class="dept-name">초등부</span>
+        <span class="dept-age">8 ~ 13세 · ELEMENTARY</span>
+        <p>달란트를 빠르게 쌓고 랭킹에 도전! 말씀 암송과 퀴즈로 경쟁하는 재미가 있어요.</p>
+        <ul class="game-list">
+          <li>말씀 빈칸 채우기</li>
+          <li>성경 낱말 퀴즈</li>
+          <li>암송 챌린지</li>
+        </ul>
+      </div>
+      <div class="dept-card" data-dept="중고등부">
+        <span class="dept-emoji">🔥</span>
+        <span class="dept-name">중고등부</span>
+        <span class="dept-age">14 ~ 19세 · YOUTH</span>
+        <p>스피드 퀴즈 배틀로 친구들과 경쟁! 깊이 있는 성경 지식을 테스트해보세요.</p>
+        <ul class="game-list">
+          <li>성경 퀴즈 스피드 배틀</li>
+          <li>주제별 심화 퀴즈</li>
+          <li>팀 대항전</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ CTA ══ -->
+<section class="cta-banner">
+  <h2>지금 바로 시작해요! 🎉</h2>
+  <p>회원가입 후 첫 게임 클리어 시 달란트 50개를 드려요.<br>나만의 캐릭터를 만들고 천국 집을 꾸며보세요!</p>
+  <a href="#" class="cta-btn-large">🌟 무료로 시작하기</a>
+</section>
+
+<!-- ══ FOOTER ══ -->
+<footer>
+  <div class="footer-logo">말씀나라</div>
+  <p>
+    SUNDAY SCHOOL PLAY PLATFORM<br>
+    미성년자 보호를 위해 개인정보를 최소 수집합니다 · 교사 승인 기반 가입 시스템
+  </p>
+</footer>
+
+<script>
+  // ── 픽셀 별 생성 ──
+  const starsEl = document.getElementById('stars');
+  for (let i = 0; i < 60; i++) {
+    const s = document.createElement('div');
+    s.className = 'star-dot';
+    const size = Math.random() < 0.3 ? 3 : (Math.random() < 0.5 ? 2 : 1);
+    s.style.cssText = `
+      width:${size}px; height:${size}px;
+      left:${Math.random()*100}%;
+      top:${Math.random()*100}%;
+      animation-delay:${Math.random()*3}s;
+      animation-duration:${1.5+Math.random()*2}s;
+    `;
+    starsEl.appendChild(s);
+  }
+
+  // ── 랭킹 탭 ──
+  document.querySelectorAll('.r-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.r-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>

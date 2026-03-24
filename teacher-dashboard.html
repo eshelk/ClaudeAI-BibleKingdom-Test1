@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>교사 대시보드 — 말씀나라</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sun: #FFD94A; --sun-dark: #b8860b;
+    --grass: #4FCB7A; --pixel-dark: #1a1a2e;
+    --pixel-purple: #3B2F6E;
+    --accent-orange: #FF7043; --accent-pink: #FF5FA0;
+    --body-bg: #f7f6ff; --card-bg: #ffffff;
+    --border: rgba(59,47,110,0.12);
+    --text-dark: #1a1a2e; --text-muted: #5a5a8a;
+    --sw: 210px;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body { height:100%; overflow:hidden; }
+  body { font-family:'Noto Sans KR',sans-serif; background:var(--body-bg); color:var(--text-dark); }
+
+  /* ── 루트 flex ── */
+  .app { display:flex; height:100vh; width:100%; overflow:hidden; }
+
+  /* ── SIDEBAR ── */
+  .snav {
+    width:var(--sw); min-width:var(--sw);
+    background:var(--pixel-dark); height:100vh;
+    display:flex; flex-direction:column; overflow-y:auto; flex-shrink:0;
+  }
+  .snav-logo { padding:22px 18px 18px; border-bottom:1px solid rgba(255,255,255,0.07); }
+  .snav-logo-text { font-family:'Press Start 2P',monospace; font-size:10px; color:var(--sun); letter-spacing:1px; display:block; margin-bottom:4px; }
+  .snav-logo-sub  { font-size:9px; color:rgba(255,255,255,0.3); font-weight:700; letter-spacing:1px; }
+  .snav-sec { padding:16px 14px 5px; font-family:'Press Start 2P',monospace; font-size:7px; color:rgba(255,255,255,0.2); letter-spacing:2px; }
+  .snav-a {
+    display:flex; align-items:center; gap:9px;
+    padding:10px 18px; font-size:12px; font-weight:700;
+    color:rgba(255,255,255,0.45); cursor:pointer;
+    text-decoration:none; border-left:3px solid transparent;
+    transition:background .15s,color .15s;
+  }
+  .snav-a:hover { background:rgba(255,255,255,0.05); color:rgba(255,255,255,0.8); }
+  .snav-a.on { background:rgba(255,209,74,0.10); color:var(--sun); border-left-color:var(--sun); }
+  .snav-ico { font-size:14px; width:16px; text-align:center; }
+  .snav-badge { margin-left:auto; background:var(--accent-pink); color:#fff; font-size:8px; font-weight:900; padding:2px 6px; font-family:'Press Start 2P',monospace; }
+  .snav-bottom { margin-top:auto; border-top:1px solid rgba(255,255,255,0.07); padding:12px 14px; }
+  .t-info { display:flex; align-items:center; gap:10px; }
+  .t-avatar { width:34px; height:34px; background:linear-gradient(135deg,var(--pixel-purple),var(--accent-pink)); display:flex; align-items:center; justify-content:center; font-size:15px; flex-shrink:0; }
+  .t-name { font-size:12px; font-weight:900; color:#fff; }
+  .t-role { font-size:10px; color:rgba(255,255,255,0.3); font-weight:700; margin-top:2px; }
+
+  /* ── MAIN ── */
+  .main { flex:1; display:flex; flex-direction:column; overflow:hidden; min-width:0; }
+
+  .topbar { background:var(--card-bg); border-bottom:1px solid var(--border); padding:12px 24px; display:flex; justify-content:space-between; align-items:center; flex-shrink:0; }
+  .topbar-title { font-size:16px; font-weight:900; color:var(--pixel-dark); display:flex; align-items:center; gap:10px; }
+  .pg-badge { font-family:'Press Start 2P',monospace; font-size:7px; background:var(--pixel-purple); color:#fff; padding:4px 9px; letter-spacing:1px; }
+  .tb-right { display:flex; align-items:center; gap:10px; }
+  .tbtn { padding:7px 16px; font-size:12px; font-weight:900; cursor:pointer; border:none; transition:transform .1s,box-shadow .1s; white-space:nowrap; }
+  .tbtn-p { background:var(--sun); color:var(--pixel-dark); box-shadow:3px 3px 0 var(--sun-dark); }
+  .tbtn-p:hover { transform:translate(-1px,-1px); box-shadow:4px 4px 0 var(--sun-dark); }
+  .tbtn-g { background:#fff; color:var(--text-muted); border:1px solid var(--border); }
+  .tbtn-g:hover { background:var(--body-bg); color:var(--pixel-dark); }
+  .nbell { width:34px; height:34px; display:flex; align-items:center; justify-content:center; border:1px solid var(--border); background:#fff; cursor:pointer; font-size:15px; position:relative; }
+  .nbell-dot { position:absolute; top:6px; right:6px; width:7px; height:7px; background:var(--accent-pink); }
+
+  /* 스크롤 본문 */
+  .body { flex:1; overflow-y:auto; padding:22px; }
+
+  /* 요약 카드 */
+  .sum-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:13px; margin-bottom:20px; }
+  .sc {
+    background:var(--card-bg); border:1px solid var(--border);
+    padding:15px; position:relative; overflow:hidden;
+    box-shadow:0 2px 8px rgba(59,47,110,0.05); transition:transform .2s;
+  }
+  .sc:hover { transform:translateY(-2px); }
+  .sc::before { content:''; position:absolute; top:0; left:0; width:100%; height:4px; background:var(--sc); }
+  .sc::after { content:var(--si); position:absolute; right:12px; top:12px; font-size:24px; opacity:0.14; }
+  .sc-lbl { font-size:8px; font-weight:700; color:var(--text-muted); letter-spacing:1px; text-transform:uppercase; margin-bottom:7px; font-family:'Press Start 2P',monospace; }
+  .sc-num { font-family:'Press Start 2P',monospace; font-size:20px; color:var(--pixel-dark); line-height:1; margin-bottom:5px; }
+  .sc-sub { font-size:10px; color:var(--text-muted); font-weight:700; }
+  .up { color:var(--grass); } .dn { color:var(--accent-pink); }
+
+  /* 2단 */
+  .two { display:grid; grid-template-columns:1fr 290px; gap:15px; margin-bottom:15px; }
+
+  /* 섹션 카드 */
+  .card { background:var(--card-bg); border:1px solid var(--border); box-shadow:0 2px 8px rgba(59,47,110,0.04); overflow:hidden; }
+  .card-head { padding:12px 16px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; background:#fafaff; }
+  .card-head-ttl { font-family:'Press Start 2P',monospace; font-size:8px; color:var(--pixel-purple); letter-spacing:2px; }
+  .card-head-btn { font-size:11px; font-weight:700; color:var(--pixel-purple); cursor:pointer; border:none; background:none; }
+  .card-head-btn:hover { color:var(--accent-pink); }
+
+  /* 출석 테이블 */
+  .att { width:100%; border-collapse:collapse; font-size:12px; }
+  .att thead tr { background:#f7f6ff; border-bottom:1px solid var(--border); }
+  .att th { padding:9px 12px; text-align:left; font-size:8px; font-weight:700; letter-spacing:1px; color:var(--text-muted); text-transform:uppercase; font-family:'Press Start 2P',monospace; white-space:nowrap; }
+  .att tbody tr { border-bottom:1px solid rgba(59,47,110,0.06); transition:background .15s; }
+  .att tbody tr:hover { background:#fafaff; }
+  .att td { padding:10px 12px; white-space:nowrap; }
+  .snick { font-weight:900; color:var(--pixel-dark); }
+  .sdept { font-size:9px; font-weight:700; padding:2px 7px; display:inline-block; background:rgba(79,203,122,0.18); color:#1a6e3a; }
+  .ast { font-size:11px; font-weight:700; padding:3px 9px; display:inline-flex; align-items:center; gap:4px; }
+  .ok { background:rgba(79,203,122,0.15); color:#1a6e3a; }
+  .no { background:rgba(255,95,160,0.15); color:#8b0050; }
+  .lt { background:rgba(255,112,67,0.15); color:#7a2800; }
+  .tcell { font-family:'Press Start 2P',monospace; font-size:10px; color:var(--pixel-purple); }
+  .gbtn { font-size:10px; font-weight:900; padding:5px 10px; background:var(--sun); color:var(--pixel-dark); border:none; cursor:pointer; box-shadow:2px 2px 0 var(--sun-dark); transition:transform .1s; }
+  .gbtn:hover { transform:translate(-1px,-1px); }
+  .gbtn:disabled { opacity:0.35; pointer-events:none; }
+
+  /* 달란트 지급 */
+  .gp { padding:15px; }
+  .fg { margin-bottom:11px; }
+  .fg label { display:block; font-size:9px; font-weight:700; color:var(--text-muted); letter-spacing:1px; margin-bottom:5px; text-transform:uppercase; }
+  .fg select, .fg input { width:100%; padding:9px 11px; border:1px solid var(--border); background:#f7f6ff; font-size:13px; font-family:'Noto Sans KR',sans-serif; color:var(--pixel-dark); font-weight:700; outline:none; transition:border-color .2s; }
+  .fg select:focus, .fg input:focus { border-color:var(--pixel-purple); background:#fff; }
+  .qbs { display:flex; gap:5px; flex-wrap:wrap; margin-top:7px; }
+  .qb { padding:4px 10px; font-size:11px; font-weight:900; border:1px solid var(--border); background:#fff; cursor:pointer; color:var(--text-muted); transition:all .15s; }
+  .qb:hover, .qb.sel { background:var(--pixel-purple); color:#fff; border-color:var(--pixel-purple); }
+  .gsub { width:100%; padding:12px; background:var(--pixel-purple); color:#fff; border:none; font-size:13px; font-weight:900; cursor:pointer; box-shadow:4px 4px 0 rgba(59,47,110,0.22); transition:transform .1s,box-shadow .1s; margin-top:4px; }
+  .gsub:hover { transform:translate(-2px,-2px); box-shadow:6px 6px 0 rgba(59,47,110,0.22); }
+  .glog { margin-top:13px; border-top:1px dashed var(--border); padding-top:11px; }
+  .glog-ttl { font-family:'Press Start 2P',monospace; font-size:7px; color:var(--text-muted); letter-spacing:2px; margin-bottom:8px; }
+  .lr { display:flex; justify-content:space-between; font-size:11px; color:var(--text-muted); padding:5px 0; border-bottom:1px solid rgba(59,47,110,0.05); }
+  .lr:last-child { border-bottom:none; }
+  .lr span:first-child { font-weight:700; color:var(--pixel-dark); }
+  .lamt { color:var(--grass); font-weight:900; font-family:'Press Start 2P',monospace; font-size:9px; }
+
+  /* 3단 하단 */
+  .three { display:grid; grid-template-columns:1fr 1fr 1fr; gap:15px; }
+
+  /* 게임 현황 */
+  .gr { display:flex; align-items:center; padding:10px 15px; border-bottom:1px solid rgba(59,47,110,0.06); font-size:12px; transition:background .15s; }
+  .gr:hover { background:#fafaff; }
+  .gr:last-child { border-bottom:none; }
+  .gr-name { font-weight:700; color:var(--pixel-dark); width:105px; flex-shrink:0; }
+  .gr-bw { flex:1; height:5px; background:#f0eeff; margin:0 10px; }
+  .gr-b { height:100%; }
+  .gr-cnt { font-family:'Press Start 2P',monospace; font-size:9px; color:var(--text-muted); }
+
+  /* 공지 */
+  .nr { display:flex; align-items:flex-start; gap:10px; padding:11px 15px; border-bottom:1px solid rgba(59,47,110,0.06); cursor:pointer; transition:background .15s; }
+  .nr:hover { background:#fafaff; }
+  .nr:last-child { border-bottom:none; }
+  .nd { width:7px; height:7px; flex-shrink:0; margin-top:4px; }
+  .nd.new { background:var(--accent-pink); }
+  .nd.read { border:1px solid var(--border); }
+  .nt { font-size:12px; font-weight:700; color:var(--pixel-dark); margin-bottom:3px; line-height:1.4; }
+  .nd2 { font-size:10px; color:var(--text-muted); }
+
+  /* 활동 피드 */
+  .fr { display:flex; align-items:center; gap:10px; padding:10px 15px; border-bottom:1px solid rgba(59,47,110,0.06); font-size:12px; }
+  .fr:last-child { border-bottom:none; }
+  .fi { width:28px; height:28px; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:13px; background:#f0eeff; }
+  .ft { flex:1; color:var(--pixel-dark); line-height:1.5; }
+  .ft strong { font-weight:900; }
+  .ftime { font-size:10px; color:var(--text-muted); white-space:nowrap; }
+
+  /* 모달 */
+  .modal-ov { position:fixed; inset:0; background:rgba(26,26,46,0.55); z-index:200; display:flex; align-items:center; justify-content:center; padding:20px; opacity:0; pointer-events:none; transition:opacity .2s; backdrop-filter:blur(3px); }
+  .modal-ov.open { opacity:1; pointer-events:all; }
+  .mbox { background:#fff; width:100%; max-width:380px; padding:26px; box-shadow:8px 8px 0 rgba(59,47,110,0.15); transform:scale(0.96); transition:transform .2s; }
+  .modal-ov.open .mbox { transform:scale(1); }
+  .mttl { font-family:'Press Start 2P',monospace; font-size:11px; color:var(--pixel-purple); margin-bottom:16px; letter-spacing:1px; }
+  .minfo { background:#f7f6ff; border:1px solid var(--border); padding:13px; margin-bottom:16px; font-size:14px; line-height:1.9; color:var(--pixel-dark); }
+  .minfo strong { font-weight:900; color:var(--pixel-purple); }
+  .mamt { font-family:'Press Start 2P',monospace; color:var(--sun); font-size:18px; -webkit-text-stroke:.5px var(--sun-dark); }
+  .mbtns { display:flex; gap:10px; }
+  .mc { flex:1; padding:12px; background:var(--pixel-purple); color:#fff; border:none; font-size:13px; font-weight:900; cursor:pointer; box-shadow:4px 4px 0 rgba(59,47,110,0.2); transition:transform .1s; }
+  .mc:hover { transform:translate(-1px,-1px); }
+  .mx { flex:1; padding:12px; background:#fff; color:var(--text-muted); border:1px solid var(--border); font-size:13px; font-weight:700; cursor:pointer; transition:background .15s; }
+  .mx:hover { background:#f7f6ff; color:var(--pixel-dark); }
+
+  /* 토스트 */
+  .toast { position:fixed; bottom:22px; right:22px; background:var(--pixel-dark); color:#fff; padding:12px 18px; font-size:13px; font-weight:700; box-shadow:4px 4px 0 rgba(0,0,0,0.2); z-index:300; display:flex; align-items:center; gap:8px; transform:translateY(70px); opacity:0; transition:transform .3s ease,opacity .3s ease; max-width:300px; }
+  .toast.show { transform:translateY(0); opacity:1; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <aside class="snav">
+    <div class="snav-logo">
+      <span class="snav-logo-text">말씀나라</span>
+      <span class="snav-logo-sub">TEACHER PANEL</span>
+    </div>
+    <div class="snav-sec">메인</div>
+    <a href="#" class="snav-a on"><span class="snav-ico">📊</span>대시보드</a>
+    <a href="#" class="snav-a"><span class="snav-ico">👥</span>학생 관리</a>
+    <a href="#" class="snav-a"><span class="snav-ico">✅</span>출석 관리<span class="snav-badge">3</span></a>
+    <div class="snav-sec">달란트</div>
+    <a href="#" class="snav-a"><span class="snav-ico">💰</span>달란트 지급</a>
+    <a href="#" class="snav-a"><span class="snav-ico">📋</span>지급 내역</a>
+    <a href="#" class="snav-a"><span class="snav-ico">📈</span>통계 분석</a>
+    <div class="snav-sec">콘텐츠</div>
+    <a href="#" class="snav-a"><span class="snav-ico">🎮</span>게임 관리</a>
+    <a href="#" class="snav-a"><span class="snav-ico">📢</span>공지 관리<span class="snav-badge">2</span></a>
+    <div class="snav-bottom">
+      <div class="t-info">
+        <div class="t-avatar">👩‍🏫</div>
+        <div><div class="t-name">김선생님</div><div class="t-role">초등부 담당교사</div></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <!-- 상단 바 -->
+    <div class="topbar">
+      <div class="topbar-title">
+        대시보드 <span class="pg-badge">2025.03.24 SUN</span>
+      </div>
+      <div class="tb-right">
+        <button class="nbell">🔔<div class="nbell-dot"></div></button>
+        <button class="tbtn tbtn-g">출석 체크</button>
+        <button class="tbtn tbtn-p" id="openBtn">💰 달란트 지급</button>
+      </div>
+    </div>
+
+    <!-- 본문 -->
+    <div class="body">
+
+      <!-- 요약 카드 -->
+      <div class="sum-grid">
+        <div class="sc" style="--sc:var(--grass);--si:'👥'"><div class="sc-lbl">내 반 학생</div><div class="sc-num">24</div><div class="sc-sub">초등부 3반</div></div>
+        <div class="sc" style="--sc:var(--sun);--si:'✅'"><div class="sc-lbl">오늘 출석</div><div class="sc-num">21</div><div class="sc-sub">결석 2 · 지각 1</div></div>
+        <div class="sc" style="--sc:var(--pixel-purple);--si:'💰'"><div class="sc-lbl">이번 주 지급</div><div class="sc-num">840</div><div class="sc-sub"><span class="up">▲ 12%</span> 증가</div></div>
+        <div class="sc" style="--sc:var(--accent-pink);--si:'🎮'"><div class="sc-lbl">게임 참여율</div><div class="sc-num">87%</div><div class="sc-sub">21명 / 24명</div></div>
+        <div class="sc" style="--sc:var(--accent-orange);--si:'🏆'"><div class="sc-lbl">우리 반 1위</div><div class="sc-num" style="font-size:14px">말씀왕</div><div class="sc-sub">달란트 1,240개</div></div>
+      </div>
+
+      <!-- 출석 + 지급 -->
+      <div class="two">
+        <!-- 출석 테이블 -->
+        <div class="card">
+          <div class="card-head">
+            <span class="card-head-ttl">✦ 오늘 출석 현황</span>
+            <button class="card-head-btn">전체 보기 →</button>
+          </div>
+          <table class="att">
+            <thead><tr><th>닉네임</th><th>부서</th><th>출석</th><th>달란트</th><th>지급</th></tr></thead>
+            <tbody>
+              <tr><td class="snick">말씀왕</td><td><span class="sdept">초등부</span></td><td><span class="ast ok">● 출석</span></td><td class="tcell">1,240</td><td><button class="gbtn" onclick="quickGive('말씀왕')">💰 지급</button></td></tr>
+              <tr><td class="snick">믿음이</td><td><span class="sdept">초등부</span></td><td><span class="ast ok">● 출석</span></td><td class="tcell">750</td><td><button class="gbtn" onclick="quickGive('믿음이')">💰 지급</button></td></tr>
+              <tr><td class="snick">은혜로</td><td><span class="sdept">초등부</span></td><td><span class="ast lt">▲ 지각</span></td><td class="tcell">610</td><td><button class="gbtn" onclick="quickGive('은혜로')">💰 지급</button></td></tr>
+              <tr><td class="snick">기쁨이</td><td><span class="sdept">초등부</span></td><td><span class="ast no">✕ 결석</span></td><td class="tcell">560</td><td><button class="gbtn" disabled>💰 지급</button></td></tr>
+              <tr><td class="snick">빛나리</td><td><span class="sdept">초등부</span></td><td><span class="ast ok">● 출석</span></td><td class="tcell">490</td><td><button class="gbtn" onclick="quickGive('빛나리')">💰 지급</button></td></tr>
+              <tr><td class="snick">소망이</td><td><span class="sdept">초등부</span></td><td><span class="ast ok">● 출석</span></td><td class="tcell">440</td><td><button class="gbtn" onclick="quickGive('소망이')">💰 지급</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- 달란트 빠른 지급 -->
+        <div class="card" id="give-card">
+          <div class="card-head"><span class="card-head-ttl">✦ 달란트 빠른 지급</span></div>
+          <div class="gp">
+            <div class="fg"><label>대상 학생</label>
+              <select id="gs"><option value="">— 학생 선택 —</option><option>말씀왕</option><option>믿음이</option><option>은혜로</option><option>빛나리</option><option>소망이</option></select>
+            </div>
+            <div class="fg"><label>지급 사유</label>
+              <select id="gr"><option value="">— 사유 선택 —</option><option>출석 보너스</option><option>암송 완료</option><option>봉사 활동</option><option>특별 상</option><option>기타</option></select>
+            </div>
+            <div class="fg"><label>달란트 수량</label>
+              <input id="ga" type="number" placeholder="직접 입력..." min="1" max="999">
+              <div class="qbs">
+                <button class="qb" onclick="setAmt(10)">+10</button>
+                <button class="qb" onclick="setAmt(20)">+20</button>
+                <button class="qb" onclick="setAmt(30)">+30</button>
+                <button class="qb" onclick="setAmt(50)">+50</button>
+                <button class="qb" onclick="setAmt(100)">+100</button>
+              </div>
+            </div>
+            <button class="gsub" onclick="submitGive()">💰 달란트 지급하기</button>
+            <div class="glog">
+              <div class="glog-ttl">RECENT LOG</div>
+              <div class="lr"><span>말씀왕</span><span style="font-size:10px;color:var(--text-muted)">출석보너스 · 14:32</span><span class="lamt">+20</span></div>
+              <div class="lr"><span>믿음이</span><span style="font-size:10px;color:var(--text-muted)">암송완료 · 13:10</span><span class="lamt">+30</span></div>
+              <div class="lr"><span>소망이</span><span style="font-size:10px;color:var(--text-muted)">출석보너스 · 11:05</span><span class="lamt">+20</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 하단 3단 -->
+      <div class="three">
+        <!-- 게임 현황 -->
+        <div class="card">
+          <div class="card-head"><span class="card-head-ttl">✦ 게임 현황</span><button class="card-head-btn">상세 →</button></div>
+          <div class="gr"><span class="gr-name">📖 말씀 빈칸</span><div class="gr-bw"><div class="gr-b" style="width:88%;background:var(--grass)"></div></div><span class="gr-cnt">21명</span></div>
+          <div class="gr"><span class="gr-name">🔤 낱말 퀴즈</span><div class="gr-bw"><div class="gr-b" style="width:72%;background:var(--sun)"></div></div><span class="gr-cnt">17명</span></div>
+          <div class="gr"><span class="gr-name">🏆 암송 챌린지</span><div class="gr-bw"><div class="gr-b" style="width:54%;background:var(--accent-orange)"></div></div><span class="gr-cnt">13명</span></div>
+          <div class="gr"><span class="gr-name">⚡ 스피드 배틀</span><div class="gr-bw"><div class="gr-b" style="width:38%;background:var(--accent-pink)"></div></div><span class="gr-cnt">9명</span></div>
+        </div>
+        <!-- 공지 -->
+        <div class="card">
+          <div class="card-head"><span class="card-head-ttl">✦ 공지 관리</span><button class="card-head-btn">+ 작성</button></div>
+          <div class="nr"><div class="nd new"></div><div><div class="nt">4월 부활절 특별 이벤트 안내</div><div class="nd2">03.24 · 미발송</div></div></div>
+          <div class="nr"><div class="nd new"></div><div><div class="nt">이번 주 암송 말씀 공지</div><div class="nd2">03.22 · 발송 완료</div></div></div>
+          <div class="nr"><div class="nd read"></div><div><div class="nt">달란트 시장 날짜 변경 안내</div><div class="nd2">03.18 · 발송 완료</div></div></div>
+          <div class="nr"><div class="nd read"></div><div><div class="nt">3월 출석 우수상 발표</div><div class="nd2">03.10 · 발송 완료</div></div></div>
+        </div>
+        <!-- 피드 -->
+        <div class="card">
+          <div class="card-head"><span class="card-head-ttl">✦ 실시간 활동</span></div>
+          <div class="fr"><div class="fi">🎮</div><div class="ft"><strong>말씀왕</strong>이 암송 챌린지 클리어!</div><div class="ftime">2분 전</div></div>
+          <div class="fr"><div class="fi">💰</div><div class="ft"><strong>믿음이</strong>가 달란트 +10 획득</div><div class="ftime">8분 전</div></div>
+          <div class="fr"><div class="fi">🏆</div><div class="ft"><strong>빛나리</strong>가 랭킹 7위 ▲3</div><div class="ftime">15분 전</div></div>
+          <div class="fr"><div class="fi">🎮</div><div class="ft"><strong>소망이</strong>가 낱말 퀴즈 완료</div><div class="ftime">22분 전</div></div>
+          <div class="fr"><div class="fi">✅</div><div class="ft"><strong>은혜로</strong>가 지각 처리됨</div><div class="ftime">34분 전</div></div>
+        </div>
+      </div>
+
+    </div><!-- /body -->
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- 모달 -->
+<div class="modal-ov" id="modal">
+  <div class="mbox">
+    <div class="mttl">💰 달란트 지급 확인</div>
+    <div class="minfo">
+      대상: <strong id="ms">—</strong><br>
+      사유: <strong id="mr">—</strong><br>
+      지급량: <span class="mamt" id="ma">0</span> 달란트
+    </div>
+    <div class="mbtns">
+      <button class="mx" onclick="closeM()">취소</button>
+      <button class="mc" onclick="confirmGive()">확인 · 지급</button>
+    </div>
+  </div>
+</div>
+
+<!-- 토스트 -->
+<div class="toast" id="toast"><span id="toast-msg">완료!</span></div>
+
+<script>
+  let P = {};
+  function setAmt(n){ document.getElementById('ga').value=n; document.querySelectorAll('.qb').forEach(b=>b.classList.remove('sel')); event.target.classList.add('sel'); }
+  function submitGive(){
+    const s=document.getElementById('gs').value, r=document.getElementById('gr').value, a=document.getElementById('ga').value;
+    if(!s||!r||!a){ showT('⚠️ 학생·사유·수량을 모두 입력해 주세요.'); return; }
+    P={s,r,a}; document.getElementById('ms').textContent=s; document.getElementById('mr').textContent=r; document.getElementById('ma').textContent='+'+a;
+    document.getElementById('modal').classList.add('open');
+  }
+  function quickGive(nick){ document.getElementById('gs').value=nick; showT('💡 '+nick+' 선택됨. 사유와 수량을 입력해 주세요.'); }
+  function closeM(){ document.getElementById('modal').classList.remove('open'); }
+  document.getElementById('modal').addEventListener('click',e=>{ if(e.target===document.getElementById('modal')) closeM(); });
+  function confirmGive(){ closeM(); showT('✅ '+P.s+'에게 달란트 '+P.a+'개 지급 완료!'); ['gs','gr','ga'].forEach(id=>document.getElementById(id).value=''); document.querySelectorAll('.qb').forEach(b=>b.classList.remove('sel')); }
+  document.getElementById('openBtn').addEventListener('click',()=>{ document.getElementById('give-card').scrollIntoView({behavior:'smooth',block:'nearest'}); showT('💡 달란트 지급 패널을 이용해 주세요!'); });
+  let TT;
+  function showT(msg){ const t=document.getElementById('toast'); document.getElementById('toast-msg').textContent=msg; t.classList.add('show'); clearTimeout(TT); TT=setTimeout(()=>t.classList.remove('show'),3000); }
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeM(); });
+</script>
+</body>
+</html>
